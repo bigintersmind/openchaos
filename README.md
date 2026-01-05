@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OpenChaos.dev
 
-## Getting Started
+**[openchaos.dev](https://openchaos.dev)**
 
-First, run the development server:
+A self-evolving open source project. Every week, the community votes on PRs, and the winner gets merged.
+
+**The website IS the repo. The repo IS the website.**
+
+## How It Works
+
+1. Anyone submits a PR
+2. Community votes via 👍 reactions on the PR
+3. Every **Sunday at 09:00 UTC**, the most-voted PR gets merged
+4. Vercel auto-deploys
+5. Repeat forever
+
+## Rules
+
+- **Vote**: Add a 👍 reaction to any open PR
+- **Most votes wins**: Ties are decided by the maintainer
+- **CI must pass**: If the build fails, the PR is not eligible
+- **No merge conflicts**: PRs with conflicts at merge time are skipped; the next highest PR wins
+- **No malware**: Maintainer can reject obviously malicious content
+
+## What Can Be Changed
+
+Everything. Including these rules.
+
+Someone could submit a PR that:
+- Changes the UI completely
+- Adds a whole new feature
+- Removes something
+- Adds a backend/database
+- Turns it into a game
+
+If it passes CI and gets votes, it can win.
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 16 (App Router)
+- Tailwind CSS v4
+- Vercel (auto-deploy)
+- GitHub API (PR reactions for voting)
