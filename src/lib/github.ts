@@ -11,6 +11,14 @@ export interface PullRequest {
   checksPassed: boolean;
 }
 
+export interface MergedPullRequest {
+  number: number;
+  title: string;
+  author: string;
+  url: string;
+  mergedAt: string;
+}
+
 interface GitHubPR {
   number: number;
   title: string;
@@ -192,4 +200,46 @@ async function getCommitStatus(
 
   const data: GitHubCommitStatus = await response.json();
   return data.state === "success";
+}
+
+interface GitHubMergedPR {
+  number: number;
+  title: string;
+  html_url: string;
+  user: {
+    login: string;
+  };
+  merged_at: string | null;
+}
+
+export async function getMergedPRs(): Promise<MergedPullRequest[]> {
+  const [owner, repo] = GITHUB_REPO.split("/");
+
+  const response = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/pulls?state=closed&sort=updated&direction=desc&per_page=20`,
+    {
+      headers: getHeaders("application/vnd.github.v3+json"),
+      next: { revalidate: 300 },
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 403) {
+      throw new Error("Rate limited by GitHub API");
+    }
+    throw new Error(`GitHub API error: ${response.status}`);
+  }
+
+  const prs: GitHubMergedPR[] = await response.json();
+
+  // Filter to only merged PRs (not just closed) and map to our interface
+  return prs
+    .filter((pr) => pr.merged_at !== null)
+    .map((pr) => ({
+      number: pr.number,
+      title: pr.title,
+      author: pr.user.login,
+      url: pr.html_url,
+      mergedAt: pr.merged_at!,
+    }));
 }
