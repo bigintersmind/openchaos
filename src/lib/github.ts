@@ -232,9 +232,10 @@ export async function getMergedPRs(): Promise<MergedPullRequest[]> {
 
   const prs: GitHubMergedPR[] = await response.json();
 
-  // Filter to only merged PRs (not just closed) and map to our interface
+  // Filter to only merged PRs (not just closed), exclude repo owner's maintenance PRs
+  const REPO_OWNER = owner;
   return prs
-    .filter((pr) => pr.merged_at !== null)
+    .filter((pr) => pr.merged_at !== null && pr.user.login !== REPO_OWNER)
     .map((pr) => ({
       number: pr.number,
       title: pr.title,
