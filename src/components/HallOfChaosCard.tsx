@@ -12,27 +12,77 @@ export function HallOfChaosCard({ pr }: HallOfChaosCardProps) {
   });
 
   return (
-    <a
-      href={pr.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block w-full p-3 rounded-lg border border-zinc-200 hover:border-emerald-400 transition-colors bg-gradient-to-r from-transparent to-emerald-50/50"
+    <table
+      width="100%"
+      border={2}
+      cellPadding={8}
+      cellSpacing={0}
+      className="hall-card"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-zinc-400 text-sm">#{pr.number}</span>
-            <span className="px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">
-              MERGED
+      <tbody>
+        <tr>
+          <td className="hall-card-number-cell">
+            <span className="hall-card-number-text">
+              <b>#{pr.number}</b>
             </span>
-          </div>
-          <h3 className="mt-1 font-medium truncate text-sm">{pr.title}</h3>
-          <p className="mt-0.5 text-xs text-zinc-500">
-            by @{pr.author} · {mergedDate}
-          </p>
-        </div>
-        <div className="text-lg">🏆</div>
-      </div>
-    </a>
+            <div className="hall-card-merged-badge">
+              <span className="hall-card-merged-badge-text">
+                <b>MERGED</b>
+              </span>
+            </div>
+          </td>
+          <td className="hall-card-content-cell">
+            <table width="100%" border={0} cellPadding={0} cellSpacing={0}>
+              <tbody>
+                <tr>
+                  <td>
+                    <span className="hall-card-title">
+                      <b>{pr.title}</b>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="hall-card-author-row">
+                    <span className="hall-card-author-text">
+                      by <a
+                        href={`https://github.com/${pr.author}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hall-card-author-link"
+                      >
+                        <b>@{pr.author}</b>
+                      </a>
+                      {" · "}
+                      <span className="hall-card-date">{mergedDate}</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="hall-card-link-row">
+                    <a
+                      href={pr.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hall-card-link"
+                    >
+                      <b>[View on GitHub →]</b>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td className="hall-card-trophy-cell">
+            <span className="hall-card-trophy-emoji">
+              🏆
+            </span>
+            <br />
+            <span className="hall-card-winner-text">
+              <b>WINNER</b>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }

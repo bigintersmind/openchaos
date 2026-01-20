@@ -13,25 +13,38 @@ export async function HallOfChaos() {
 
   if (error) {
     return (
-      <div className="w-full max-w-xl text-center py-4">
-        <p className="text-zinc-500 text-sm">{error}</p>
-      </div>
+      <table width="90%" border={1} cellPadding={10} className="hall-error-table">
+        <tbody>
+          <tr>
+            <td className="hall-error-cell">
+              <b>{error}</b>
+              <br />
+              <span>Try refreshing the page in a minute.</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     );
   }
 
   if (!prs || prs.length === 0) {
     return (
-      <div className="w-full max-w-xl text-center py-4">
-        <p className="text-zinc-400 text-sm">No merged PRs yet.</p>
-        <p className="mt-1 text-xs text-zinc-500">
-          The first winner will be immortalized here.
-        </p>
-      </div>
+      <table width="90%" border={1} cellPadding={10} className="hall-empty-table">
+        <tbody>
+          <tr>
+            <td className="hall-empty-cell">
+              <b>No merged PRs yet.</b>
+              <br />
+              <span>The first winner will be immortalized here!</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     );
   }
 
   return (
-    <div className="w-full max-w-xl space-y-2">
+    <div className="hall-container">
       {prs.map((pr) => (
         <HallOfChaosCard key={pr.number} pr={pr} />
       ))}
