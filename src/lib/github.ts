@@ -6,9 +6,28 @@ export interface PullRequest {
   author: string;
   url: string;
   votes: number;
+  upvotes: number;
+  downvotes: number;
+  comments: number;
   createdAt: string;
   isMergeable: boolean;
   checksPassed: boolean;
+  hotScore: number;
+  risingScore: number;
+}
+
+/**
+ * Calculate a "hot score" for ranking PRs, inspired by Reddit's algorithm.
+ * Combines vote count (logarithmic) with recency (linear) so newer PRs
+ * with fewer votes can compete with older PRs that have more votes.
+ */
+function calculateHotScore(votes: number, createdAt: string): number {
+  const voteScore = Math.log10(Math.max(votes, 1) + 1);
+  const createdSeconds = new Date(createdAt).getTime() / 1000;
+  const referenceTime = new Date("2024-01-01").getTime() / 1000;
+  const ageSeconds = createdSeconds - referenceTime;
+  const decayConstant = 45000; // ~12.5 hours
+  return voteScore + ageSeconds / decayConstant;
 }
 
 export interface MergedPullRequest {
@@ -27,6 +46,7 @@ interface GitHubPR {
     login: string;
   };
   created_at: string;
+  comments: number;
   head: {
     sha: string;
   };
@@ -34,6 +54,7 @@ interface GitHubPR {
 
 interface GitHubReaction {
   content: string;
+  created_at: string;
 }
 
 interface GitHubPRDetail {
@@ -100,7 +121,7 @@ export async function getOpenPRs(): Promise<PullRequest[]> {
   // Fetch reactions and status for each PR
   const prsWithVotes = await Promise.all(
     prs.map(async (pr) => {
-      const votes = await getPRVotes(owner, repo, pr.number);
+      const reactions = await getPRReactions(owner, repo, pr.number);
       const isMergeable = await getPRMergeStatus(owner, repo, pr.number);
       const checksPassed = await getCommitStatus(owner, repo, pr.head.sha);
 
@@ -109,10 +130,15 @@ export async function getOpenPRs(): Promise<PullRequest[]> {
         title: pr.title,
         author: pr.user.login,
         url: pr.html_url,
-        votes,
+        votes: reactions.votes,
+        upvotes: reactions.upvotes,
+        downvotes: reactions.downvotes,
+        comments: pr.comments ?? 0,
         createdAt: pr.created_at,
         isMergeable,
         checksPassed,
+        hotScore: calculateHotScore(reactions.votes, pr.created_at),
+        risingScore: reactions.weeklyVotes,
       };
     }),
   );
@@ -132,7 +158,54 @@ export async function getOpenPRs(): Promise<PullRequest[]> {
   });
 }
 
-async function getPRVotes(owner: string, repo: string, prNumber: number): Promise<number> {
+export interface OrganizedPRs {
+  topByVotes: PullRequest[];
+  rising: PullRequest[];
+  newest: PullRequest[];
+  discussed: PullRequest[];
+  controversial: PullRequest[];
+}
+
+export async function getOrganizedPRs(): Promise<OrganizedPRs> {
+  const allPRs = await getOpenPRs();
+
+  // Top 10 by votes (already sorted by getOpenPRs)
+  const topByVotes = allPRs.slice(0, 10);
+
+  // Rising: sorted by time-weighted votes (recent votes count more)
+  const rising = [...allPRs]
+    .sort((a, b) => b.risingScore - a.risingScore)
+    .slice(0, 10);
+
+  // Newest: sorted by creation date, limited to 10
+  const newest = [...allPRs]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 10);
+
+  // Discussed: sorted by comment count, limited to 10
+  const discussed = [...allPRs]
+    .sort((a, b) => b.comments - a.comments)
+    .slice(0, 10);
+
+  // Controversial: PRs with both upvotes and downvotes, sorted by min(up, down)
+  const controversial = [...allPRs]
+    .filter((pr) => pr.upvotes > 0 && pr.downvotes > 0)
+    .sort((a, b) => Math.min(b.upvotes, b.downvotes) - Math.min(a.upvotes, a.downvotes))
+    .slice(0, 10);
+
+  return { topByVotes, rising, newest, discussed, controversial };
+}
+
+interface ReactionCounts {
+  upvotes: number;
+  downvotes: number;
+  votes: number;
+  weeklyVotes: number;
+}
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+async function getPRReactions(owner: string, repo: string, prNumber: number): Promise<ReactionCounts> {
   let allReactions: GitHubReaction[] = [];
   let page = 1;
 
@@ -146,7 +219,6 @@ async function getPRVotes(owner: string, repo: string, prNumber: number): Promis
     );
 
     if (!response.ok) {
-      // console.error(`Failed to fetch reactions for PR #${prNumber}: ${response.status} with message ${await response.text()}`);
       break;
     }
 
@@ -165,7 +237,23 @@ async function getPRVotes(owner: string, repo: string, prNumber: number): Promis
     page++;
   }
 
-  return allReactions.filter((r) => r.content === "+1").length - allReactions.filter((r) => r.content === "-1").length;
+  const upvotes = allReactions.filter((r) => r.content === "+1").length;
+  const downvotes = allReactions.filter((r) => r.content === "-1").length;
+
+  // Count only votes from the last 7 days for Rising
+  const now = Date.now();
+  const recentReactions = allReactions.filter(
+    (r) => now - new Date(r.created_at).getTime() <= SEVEN_DAYS_MS
+  );
+  const weeklyUpvotes = recentReactions.filter((r) => r.content === "+1").length;
+  const weeklyDownvotes = recentReactions.filter((r) => r.content === "-1").length;
+
+  return {
+    upvotes,
+    downvotes,
+    votes: upvotes - downvotes,
+    weeklyVotes: weeklyUpvotes - weeklyDownvotes,
+  };
 }
 
 async function getPRMergeStatus(
