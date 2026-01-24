@@ -19,10 +19,14 @@ export function ExpandablePRSection({
   showRank = false,
   allowExpand = false,
 }: ExpandablePRSectionProps) {
-  const [expanded, setExpanded] = useState(false);
+  const initialCount = prs.length;
+  const [displayCount, setDisplayCount] = useState(initialCount);
   const expandablePRs = allPRs || prs;
-  const hasMore = allowExpand && expandablePRs.length > prs.length;
-  const displayedPRs = expanded ? expandablePRs : prs;
+  const totalCount = expandablePRs.length;
+  const hasMore = allowExpand && totalCount > initialCount;
+  const displayedPRs = expandablePRs.slice(0, displayCount);
+  const canShowMore = displayCount < totalCount;
+  const canShowLess = displayCount > initialCount;
 
   if (prs.length === 0) {
     return (
@@ -64,20 +68,52 @@ export function ExpandablePRSection({
         ))}
       </div>
       {hasMore && (
-        <div style={{ textAlign: "center", marginTop: "8px", marginBottom: "16px" }}>
-          <button
-            onClick={() => setExpanded(!expanded)}
-            style={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: "12px",
-              padding: "4px 12px",
-              cursor: "pointer",
-              border: "2px outset #ffffff",
-              backgroundColor: "#c0c0c0",
-            }}
-          >
-            <b>{expanded ? "Show Less" : `Show All (${expandablePRs.length})`}</b>
-          </button>
+        <div style={{ textAlign: "center", marginTop: "8px", marginBottom: "16px", display: "flex", gap: "8px", justifyContent: "center" }}>
+          {canShowMore && (
+            <>
+              <button
+                onClick={() => setDisplayCount(Math.min(displayCount + 10, totalCount))}
+                style={{
+                  fontFamily: "Arial, sans-serif",
+                  fontSize: "12px",
+                  padding: "4px 12px",
+                  cursor: "pointer",
+                  border: "2px outset #ffffff",
+                  backgroundColor: "#c0c0c0",
+                }}
+              >
+                <b>Show More (10)</b>
+              </button>
+              <button
+                onClick={() => setDisplayCount(totalCount)}
+                style={{
+                  fontFamily: "Arial, sans-serif",
+                  fontSize: "12px",
+                  padding: "4px 12px",
+                  cursor: "pointer",
+                  border: "2px outset #ffffff",
+                  backgroundColor: "#c0c0c0",
+                }}
+              >
+                <b>Show All ({totalCount})</b>
+              </button>
+            </>
+          )}
+          {canShowLess && (
+            <button
+              onClick={() => setDisplayCount(initialCount)}
+              style={{
+                fontFamily: "Arial, sans-serif",
+                fontSize: "12px",
+                padding: "4px 12px",
+                cursor: "pointer",
+                border: "2px outset #ffffff",
+                backgroundColor: "#c0c0c0",
+              }}
+            >
+              <b>Show Less</b>
+            </button>
+          )}
         </div>
       )}
     </div>

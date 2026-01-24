@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { PullRequest } from "@/lib/github";
 import { ExpandablePRSection } from "./ExpandablePRSection";
 
@@ -16,6 +16,25 @@ interface FramesLayoutProps {
 }
 
 export function FramesLayout({ topByVotes, rising, newest, discussed, controversial, allPRs }: FramesLayoutProps) {
+  // Pre-sort allPRs for each view
+  const allByRising = useMemo(
+    () => [...allPRs].sort((a, b) => b.risingScore - a.risingScore),
+    [allPRs]
+  );
+  const allByNewest = useMemo(
+    () => [...allPRs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+    [allPRs]
+  );
+  const allByDiscussed = useMemo(
+    () => [...allPRs].sort((a, b) => b.comments - a.comments),
+    [allPRs]
+  );
+  const allByControversial = useMemo(
+    () => [...allPRs]
+      .filter((pr) => pr.upvotes > 0 && pr.downvotes > 0)
+      .sort((a, b) => Math.min(b.upvotes, b.downvotes) - Math.min(a.upvotes, a.downvotes)),
+    [allPRs]
+  );
   const [activeSection, setActiveSection] = useState<Section>("top");
 
   const validSections: Section[] = ["top", "rising", "new", "discussed", "controversial"];
@@ -88,16 +107,33 @@ export function FramesLayout({ topByVotes, rising, newest, discussed, controvers
           <ExpandablePRSection
             title="🔥 HOT THIS WEEK 🔥"
             prs={rising.map((pr) => ({ ...pr, votes: pr.risingScore }))}
+            allPRs={allByRising.map((pr) => ({ ...pr, votes: pr.risingScore }))}
+            allowExpand
           />
         )}
         {activeSection === "new" && (
-          <ExpandablePRSection title="🆕 NEWEST 🆕" prs={newest} />
+          <ExpandablePRSection
+            title="🆕 NEWEST 🆕"
+            prs={newest}
+            allPRs={allByNewest}
+            allowExpand
+          />
         )}
         {activeSection === "discussed" && (
-          <ExpandablePRSection title="💬 DISCUSSED 💬" prs={discussed} />
+          <ExpandablePRSection
+            title="💬 DISCUSSED 💬"
+            prs={discussed}
+            allPRs={allByDiscussed}
+            allowExpand
+          />
         )}
         {activeSection === "controversial" && (
-          <ExpandablePRSection title="🌶️ CONTROVERSIAL 🌶️" prs={controversial} />
+          <ExpandablePRSection
+            title="🌶️ CONTROVERSIAL 🌶️"
+            prs={controversial}
+            allPRs={allByControversial}
+            allowExpand
+          />
         )}
       </div>
     </div>
