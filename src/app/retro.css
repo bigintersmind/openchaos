@@ -2480,6 +2480,34 @@
   padding: 10px;
 }
 
+[data-theme="dark"] .frames-content-frame {
+  background: #2a2a2a;
+  border-left-color: #555555;
+}
+
+/* PR list section header */
+.pr-list-section-header {
+  background: linear-gradient(180deg, #0058e6 0%, #3a7bd5 100%);
+  border-color: #003399;
+}
+
+.pr-list-section-header-cell {
+  color: #ffffff;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 14px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .pr-list-section-header {
+  background: linear-gradient(180deg, #1a1a4e 0%, #2a2a6e 100%);
+  border-color: #3a3a8e;
+}
+
+[data-theme="dark"] .pr-list-section-header-cell {
+  color: #e0e0ff;
+}
+
 /* Mobile responsiveness - stack frames vertically on small screens */
 @media (max-width: 600px) {
   .frames-container {
