@@ -59,7 +59,7 @@ export function FramesLayout({ topByVotes, rising, newest, discussed, controvers
   };
 
   const navItems = [
-    { id: "top" as Section, label: "TOP BY VOTES", icon: "🏆" },
+    { id: "top" as Section, label: "TOP BY VOTES", icon: "⭐" },
     { id: "rising" as Section, label: "HOT THIS WEEK", icon: "🔥" },
     { id: "controversial" as Section, label: "CONTROVERSIAL", icon: "🌶️" },
     { id: "discussed" as Section, label: "DISCUSSED", icon: "💬" },
@@ -96,7 +96,7 @@ export function FramesLayout({ topByVotes, rising, newest, discussed, controvers
       <div className="frames-content-frame">
         {activeSection === "top" && (
           <ExpandablePRSection
-            title="🏆 TOP BY VOTES 🏆"
+            title="⭐ TOP BY VOTES ⭐"
             prs={topByVotes}
             allPRs={allPRs}
             showRank
