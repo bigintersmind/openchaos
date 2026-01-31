@@ -3,62 +3,46 @@ import { Countdown } from "@/components/Countdown";
 import { ControlledChaos } from "@/components/ControlledChaos";
 
 import { PRList } from "@/components/PRList";
+
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Web2Layout } from "@/components/Web2Layout";
 import { HallOfChaos } from "@/components/HallOfChaos";
-import { AuthButton } from "@/components/AuthButton";
-const title = `
-  ___                 ___ _                
- / _ \\ _ __  ___ _ _ / __| |_  __ _ ___ ___
-| (_) | '_ \\/ -_) ' \\ (__| ' \\/ _\` / _ (_-<
- \\___/| .__/\\___|_||_\\___|_||_\\__,_\\___/__/
-      |_|  
-                                      
-`;
+import { Web2LoadingSpinner } from "@/components/Web2LoadingSpinner";
 
 export default function Home() {
   return (
-    <>
-    <pre >{title}</pre>
-      <div className="absolute top-8 right-4">
-        <ThemeToggle />
-      </div>
+    <Web2Layout>
       <Countdown />
       <ControlledChaos />
-      <div>
-        <div>
-          <AuthButton /> <a href="doom.html">[Play DOOM]</a>
-          <br /><br />
-          <pre className="dickbutt">
-            8===D (‿|‿)
-          </pre>
-          <br />
-          <Suspense
-            fallback={
-              <div>
-                Loading PRs... Please Wait...
-              </div>
-            }
-          >
-            <PRList />
-          </Suspense>
+      <div className="page-container">
+        {/* Open PRs Section */}
+        <div className="web2-section">
+          <div className="web2-section-header">
+            <span className="web2-section-title">Open PRs — Vote to Merge</span>
+          </div>
+          <div className="web2-section-body">
+            <div className="page-content-flex">
+              <Suspense fallback={<Web2LoadingSpinner text="Loading PRs..." />}>
+                <PRList />
+              </Suspense>
+            </div>
+          </div>
         </div>
 
-        <div>
-          HALL OF CHAOS - PAST WINNERS
-          <br />
-          ----------------------------
-          <br />
-          <Suspense
-            fallback={
-              <div>
-                Loading history... Please Wait...
-              </div>
-            }
-          >
-            <HallOfChaos />
-          </Suspense>
+        {/* Hall of Chaos Section */}
+        <div className="web2-section">
+          <div className="web2-section-header">
+            <span className="web2-section-title">Hall of Chaos — Past Winners</span>
+          </div>
+          <div className="web2-section-body">
+            <div className="page-content-flex">
+              <Suspense fallback={<Web2LoadingSpinner text="Loading history..." />}>
+                <HallOfChaos />
+              </Suspense>
+            </div>
+          </div>
         </div>
       </div>
-    </>
+    </Web2Layout>
   );
 }

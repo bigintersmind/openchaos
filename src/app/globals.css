@@ -4,57 +4,75 @@
 
 :root,
 [data-theme="light"] {
-  --background: #000000;
-  --foreground: #00ff00;
+  --background: #f0f0f0;
+  --foreground: #333333;
 }
 
 [data-theme="dark"] {
-  --background: #000000;
-  --foreground: #00ff00;
+  --background: #1a1a1a;
+  --foreground: #e0e0e0;
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Courier New', monospace;
+}
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Courier New', 'Courier', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-}
-pre {
-  white-space: pre;
+  font-family: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Web 2.0 base styles */
 * {
-  color: var(--foreground);
+  box-sizing: border-box;
 }
 
-.container {
-  max-width: 80ch;
-  margin: 0 auto;
-  padding: 20px;
+a {
+  color: #2a5db0;
+  text-decoration: none;
 }
-.container a {
+
+a:hover {
   text-decoration: underline;
 }
 
+[data-theme="dark"] a {
+  color: #5b9bd5;
+}
+
+/* Table reset - no layout tables in Web 2.0 */
+table {
+  border-collapse: collapse;
+}
+
+/* Retro element compatibility */
+font {
+  display: inline;
+}
+
+center {
+  display: block;
+  text-align: center;
+}
+
+/* Keyframes preserved from globals */
+@keyframes rotate-hue {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
 
 @keyframes sixseven-shake {
-  0% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-5deg);
-  }
-  50% {
-    transform: rotate(0deg);
-  }
-  75% {
-    transform: rotate(5deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(5deg); }
+  100% { transform: rotate(0deg); }
 }
 
 .sixseven-shake {
@@ -62,7 +80,6 @@ pre {
   transform-origin: center;
   will-change: transform;
 }
-
 
 .world-chaos {
   color: var(--foreground);
@@ -130,8 +147,25 @@ pre {
 }
 
 .auth-button {
-  text-decoration: underline;
+  padding: 8px 16px;
+  border: 3px outset #808080;
+  background: linear-gradient(to bottom, #c0c0c0, #808080);
+  color: #000000;
+  font-family: 'Comic Sans MS', cursive;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-block;
 }
+
+.auth-button:hover {
+  background: linear-gradient(to bottom, #d0d0d0, #909090);
+}
+
+.auth-button:active {
+  border-style: inset;
+  background: linear-gradient(to bottom, #808080, #c0c0c0);
+}
+
 .auth-button-disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -170,6 +204,7 @@ pre {
   border: 2px outset #808080;
   background: linear-gradient(to bottom, #c0c0c0, #808080);
   color: #000000;
+  font-family: 'Comic Sans MS', cursive;
   font-size: 16px;
   cursor: pointer;
   display: inline-block;
