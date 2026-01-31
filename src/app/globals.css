@@ -4,38 +4,54 @@
 
 :root,
 [data-theme="light"] {
-  --background: #fafafa;
-  --foreground: #0a0a0a;
+  --background: #f0f0f0;
+  --foreground: #333333;
 }
 
 [data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
+  --background: #1a1a1a;
+  --foreground: #e0e0e0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Comic Sans MS', cursive;
+  --font-sans: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'Courier New', monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Comic Sans MS', cursive;
+  font-family: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Classic IE6 styles */
-marquee {
-  display: inline-block;
+/* Web 2.0 base styles */
+* {
+  box-sizing: border-box;
 }
 
-/* Restore classic HTML elements styling */
+a {
+  color: #2a5db0;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] a {
+  color: #5b9bd5;
+}
+
+/* Table reset - no layout tables in Web 2.0 */
 table {
-  border-collapse: separate;
+  border-collapse: collapse;
 }
 
+/* Retro element compatibility */
 font {
   display: inline;
 }
@@ -45,7 +61,7 @@ center {
   text-align: center;
 }
 
-/* Add some retro animations */
+/* Keyframes preserved from globals */
 @keyframes rotate-hue {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
@@ -53,21 +69,11 @@ center {
 
 
 @keyframes sixseven-shake {
-  0% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-5deg);
-  }
-  50% {
-    transform: rotate(0deg);
-  }
-  75% {
-    transform: rotate(5deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(5deg); }
+  100% { transform: rotate(0deg); }
 }
 
 .sixseven-shake {

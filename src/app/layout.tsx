@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./retro.css";
+import "./web2.css";
 import { Fartscroll } from "@/components/Fartscroll";
 
 export const metadata: Metadata = {

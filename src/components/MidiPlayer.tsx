@@ -49,56 +49,46 @@ export function MidiPlayer({ isOpen, onClose }: MidiPlayerProps) {
 
   return (
     <div className="midi-player-container">
-      <table border={3} cellPadding={8} cellSpacing={0} className="midi-player-table">
-        <tbody>
-          <tr>
-            <td className="midi-player-header" colSpan={2}>
-              <span className="midi-player-header-text">
-                <b>♪♫ TUNES ♫♪</b>
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <td className="midi-player-display">
-              <div className="midi-player-display-text">
-                {isPlaying ? (
-                  <span className="blink-text">▶ NOW PLAYING...</span>
-                ) : (
-                  <span>⏸ Ready</span>
-                )}
-              </div>
-              <div className="midi-player-filename">
-                openchaos.mid
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td className="midi-player-controls">
-              <button 
-                onClick={togglePlay}
-                className="midi-player-control-button"
-              >
-                {isPlaying ? "⏸ PAUSE" : "▶ PLAY"}
-              </button>
-              <button 
-                onClick={stopMusic}
-                className="midi-player-control-button"
-              >
-                ⏹ STOP
-              </button>
-              <button
-                onClick={() => {
-                  stopMusic();
-                  onClose();
-                }}
-                className="midi-player-close-button"
-              >
-                ✖ CLOSE
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="midi-player-header">
+        <span className="midi-player-header-text">
+          Music Player
+        </span>
+      </div>
+      <div className="midi-player-display">
+        <div className="midi-player-display-text">
+          {isPlaying ? (
+            <span>▶ Now Playing...</span>
+          ) : (
+            <span>⏸ Ready</span>
+          )}
+        </div>
+        <div className="midi-player-filename">
+          openchaos.mid
+        </div>
+      </div>
+      <div className="midi-player-controls">
+        <button
+          onClick={togglePlay}
+          className="midi-player-control-button"
+        >
+          {isPlaying ? "⏸ Pause" : "▶ Play"}
+        </button>
+        <button
+          onClick={stopMusic}
+          className="midi-player-control-button"
+        >
+          ⏹ Stop
+        </button>
+        <button
+          onClick={() => {
+            stopMusic();
+            onClose();
+          }}
+          className="midi-player-close-button"
+        >
+          Close
+        </button>
+      </div>
       <audio ref={audioRef} src="/openchaos.mp3" loop />
     </div>
   );

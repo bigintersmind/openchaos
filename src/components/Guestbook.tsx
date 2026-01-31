@@ -56,7 +56,7 @@ export function Guestbook() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim() || !message.trim()) {
       alert("Please fill out both fields!");
       return;
@@ -71,217 +71,118 @@ export function Guestbook() {
     const updated = [newEntry, ...userEntries];
     setUserEntries(updated);
     localStorage.setItem("guestbook-entries", JSON.stringify(updated));
-    
+
     setName("");
     setMessage("");
     setShowForm(false);
-    alert("✨ Thanks for signing my guestbook! ✨");
+    alert("Thanks for signing the guestbook!");
   };
 
   const allEntries = [...userEntries, ...DEFAULT_ENTRIES];
 
   return (
     <>
-      <button 
+      <button
         onClick={() => setIsOpen(true)}
         className="guestbook-button"
+        style={{ width: '100%', margin: 0 }}
       >
-        <b>📝 Sign My Guestbook! 📝</b>
+        Sign Guestbook
       </button>
 
       {isOpen && (
         <div className="guestbook-modal-overlay" onClick={() => setIsOpen(false)}>
           <div className="guestbook-modal" onClick={(e) => e.stopPropagation()}>
-            <table width="100%" border={3} cellPadding={0} cellSpacing={0} className="guestbook-modal-table">
-              <tbody>
-                <tr>
-                  <td className="guestbook-modal-header">
-                    <span className="guestbook-modal-header-text">
-                      <b><span className="sparkle-shine">✨</span> GUESTBOOK <span className="sparkle-shine sparkle-delay-2">✨</span></b>
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="guestbook-modal-subheader">
-                    <span className="guestbook-modal-subheader-text">
-                      {/* @ts-expect-error marquee is deprecated but used for retro styling */}
-                      <marquee scrollamount="3">
-                        <span className="sparkle-twinkle">🌟</span> Thanks for visiting! Please read what other visitors have said! <span className="sparkle-twinkle sparkle-delay-1">🌟</span>
-                      {/* @ts-expect-error marquee is deprecated but used for retro styling */}
-                      </marquee>
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="guestbook-modal-content">
-                    {!showForm ? (
-                      <div className="guestbook-entries-container">
-                        {allEntries.map((entry, index) => (
-                          <table 
-                            key={index} 
-                            width="100%" 
-                            border={2} 
-                            cellPadding={8} 
-                            cellSpacing={0}
-                            className="guestbook-entry-table"
-                          >
-                            <tbody>
-                              <tr>
-                                <td className="guestbook-entry-header">
-                                  <span className="guestbook-entry-name">
-                                    <b>{entry.name}</b>
-                                  </span>
-                                  <span className="guestbook-entry-date">
-                                    {entry.date}
-                                  </span>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td className="guestbook-entry-message">
-                                  {entry.message}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        ))}
+            <div className="guestbook-modal-header">
+              <span className="guestbook-modal-header-text">
+                Guestbook
+              </span>
+            </div>
+            <div className="guestbook-modal-subheader">
+              <span className="guestbook-modal-subheader-text">
+                Thanks for visiting! See what other visitors have said.
+              </span>
+            </div>
+            <div className="guestbook-modal-content">
+              {!showForm ? (
+                <div className="guestbook-entries-container">
+                  {allEntries.map((entry, index) => (
+                    <div key={index} className="guestbook-entry">
+                      <div className="guestbook-entry-header">
+                        <span className="guestbook-entry-name">
+                          {entry.name}
+                        </span>
+                        <span className="guestbook-entry-date">
+                          {entry.date}
+                        </span>
                       </div>
-                    ) : (
-                      <div style={{ padding: "20px" }}>
-                        <form onSubmit={handleSubmit}>
-                          <table width="100%" border={2} cellPadding={10} cellSpacing={0} style={{ backgroundColor: "#ffffff" }}>
-                            <tbody>
-                              <tr>
-                                <td style={{ backgroundColor: "#ccffcc", padding: "10px" }}>
-                                  <b>Sign the Guestbook!</b>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td style={{ padding: "15px" }}>
-                                  <table width="100%" border={0} cellPadding={5} cellSpacing={0}>
-                                    <tbody>
-                                      <tr>
-                                        <td style={{ width: "120px" }}>
-                                          <b>Your Name:</b>
-                                        </td>
-                                        <td>
-                                          <input
-                                            type="text"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            placeholder="e.g., @yourGitHubUsername"
-                                            maxLength={50}
-                                            style={{
-                                              width: "100%",
-                                              padding: "5px",
-                                              border: "2px inset #808080",
-                                              fontFamily: "'Comic Sans MS', cursive",
-                                              fontSize: "14px"
-                                            }}
-                                          />
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td style={{ verticalAlign: "top", paddingTop: "10px" }}>
-                                          <b>Message:</b>
-                                        </td>
-                                        <td>
-                                          <textarea
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            placeholder="Leave your mark on the information superhighway!"
-                                            maxLength={500}
-                                            rows={5}
-                                            style={{
-                                              width: "100%",
-                                              padding: "5px",
-                                              border: "2px inset #808080",
-                                              fontFamily: "'Comic Sans MS', cursive",
-                                              fontSize: "14px",
-                                              resize: "vertical"
-                                            }}
-                                          />
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td colSpan={2} style={{ textAlign: "center", paddingTop: "10px" }}>
-                                          <button
-                                            type="submit"
-                                            style={{
-                                              backgroundColor: "#00ff00",
-                                              color: "#0000ff",
-                                              border: "3px solid #000000",
-                                              padding: "8px 20px",
-                                              fontFamily: "'Comic Sans MS', cursive",
-                                              fontSize: "14px",
-                                              cursor: "pointer",
-                                              fontWeight: "bold",
-                                              marginRight: "10px"
-                                            }}
-                                          >
-                                            ✍️ SIGN IT!
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setShowForm(false)}
-                                            style={{
-                                              backgroundColor: "#ff0000",
-                                              color: "#ffff00",
-                                              border: "3px solid #000000",
-                                              padding: "8px 20px",
-                                              fontFamily: "'Comic Sans MS', cursive",
-                                              fontSize: "14px",
-                                              cursor: "pointer",
-                                              fontWeight: "bold"
-                                            }}
-                                          >
-                                            CANCEL
-                                          </button>
-                                        </td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </form>
+                      <div className="guestbook-entry-message">
+                        {entry.message}
                       </div>
-                    )}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="guestbook-modal-footer">
-                    {!showForm && (
-                      <button 
-                        onClick={() => setShowForm(true)}
-                        style={{
-                          backgroundColor: "#00ffff",
-                          color: "#ff0000",
-                          border: "3px solid #0000ff",
-                          padding: "10px 20px",
-                          fontFamily: "'Comic Sans MS', cursive",
-                          fontSize: "16px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          marginRight: "10px"
-                        }}
-                      >
-                        ✏️ SIGN GUESTBOOK
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="guestbook-form">
+                  <div className="guestbook-form-title">Sign the Guestbook</div>
+                  <form onSubmit={handleSubmit}>
+                    <div className="guestbook-form-field">
+                      <label className="guestbook-form-label">Your Name</label>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g., @yourGitHubUsername"
+                        maxLength={50}
+                        className="guestbook-form-input"
+                      />
+                    </div>
+                    <div className="guestbook-form-field">
+                      <label className="guestbook-form-label">Message</label>
+                      <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Leave your mark on the information superhighway!"
+                        maxLength={500}
+                        rows={5}
+                        className="guestbook-form-textarea"
+                      />
+                    </div>
+                    <div className="guestbook-form-actions">
+                      <button type="submit" className="guestbook-submit-button">
+                        Sign It
                       </button>
-                    )}
-                    <button 
-                      onClick={() => {
-                        setIsOpen(false);
-                        setShowForm(false);
-                      }}
-                      className="guestbook-close-button"
-                    >
-                      <b>[X] CLOSE</b>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      <button
+                        type="button"
+                        onClick={() => setShowForm(false)}
+                        className="guestbook-cancel-button"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+            <div className="guestbook-modal-footer">
+              {!showForm && (
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="guestbook-sign-button"
+                >
+                  Sign Guestbook
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setShowForm(false);
+                }}
+                className="guestbook-close-button"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
