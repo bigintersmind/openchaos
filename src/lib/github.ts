@@ -1,14 +1,14 @@
-import { Console } from "console";
-
 export interface PullRequest {
   number: number;
   title: string;
   author: string;
   url: string;
   votes: number;
+  totalVotes: number;
   createdAt: string;
   isMergeable: boolean;
   checksPassed: boolean;
+  codeChanged: boolean;
 }
 
 export interface MergedPullRequest {
@@ -34,6 +34,7 @@ interface GitHubPR {
 
 interface GitHubReaction {
   content: string;
+  created_at: string;
 }
 
 interface GitHubPRDetail {
@@ -97,10 +98,16 @@ export async function getOpenPRs(): Promise<PullRequest[]> {
 
   const prs = allPRs;
 
-  // Fetch reactions and status for each PR
+  // Fetch reactions, status, and code change info for each PR
   const prsWithVotes = await Promise.all(
     prs.map(async (pr) => {
-      const votes = await getPRVotes(owner, repo, pr.number);
+      const codeStatus = await getCodeChangeStatus(owner, repo, pr.number);
+      const { votes, totalVotes } = await getPRVotesWithIntegrity(
+        owner,
+        repo,
+        pr.number,
+        codeStatus.cutoffTimestamp
+      );
       const isMergeable = await getPRMergeStatus(owner, repo, pr.number);
       const checksPassed = await getCommitStatus(owner, repo, pr.head.sha);
 
@@ -110,9 +117,11 @@ export async function getOpenPRs(): Promise<PullRequest[]> {
         author: pr.user.login,
         url: pr.html_url,
         votes,
+        totalVotes,
         createdAt: pr.created_at,
         isMergeable,
         checksPassed,
+        codeChanged: codeStatus.codeChanged,
       };
     }),
   );
@@ -132,7 +141,72 @@ export async function getOpenPRs(): Promise<PullRequest[]> {
   });
 }
 
-async function getPRVotes(owner: string, repo: string, prNumber: number): Promise<number> {
+interface CodeChangeStatus {
+  codeChanged: boolean;
+  cutoffTimestamp: string | null;
+}
+
+interface GitHubComment {
+  user: {
+    login: string;
+  };
+  body: string;
+}
+
+async function getCodeChangeStatus(
+  owner: string,
+  repo: string,
+  prNumber: number
+): Promise<CodeChangeStatus> {
+  const MARKER = "<!-- vote-integrity-watchdog -->";
+
+  const response = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/issues/${prNumber}/comments?per_page=100`,
+    {
+      headers: getHeaders("application/vnd.github.v3+json"),
+      next: { revalidate: 300 },
+    }
+  );
+
+  if (!response.ok) {
+    return { codeChanged: false, cutoffTimestamp: null };
+  }
+
+  const comments: GitHubComment[] = await response.json();
+
+  const codeChangedComments = comments.filter(
+    (c) =>
+      c.user.login === "github-actions[bot]" &&
+      c.body.includes(MARKER) &&
+      c.body.includes("**CODE CHANGED**")
+  );
+
+  if (codeChangedComments.length === 0) {
+    return { codeChanged: false, cutoffTimestamp: null };
+  }
+
+  const latest = codeChangedComments[codeChangedComments.length - 1];
+  const match = latest.body.match(
+    /Timestamp: (\d{4}-\d{2}-\d{2}T[\d:.]+Z)/
+  );
+
+  return {
+    codeChanged: true,
+    cutoffTimestamp: match ? match[1] : null,
+  };
+}
+
+interface VoteResult {
+  votes: number;
+  totalVotes: number;
+}
+
+async function getPRVotesWithIntegrity(
+  owner: string,
+  repo: string,
+  prNumber: number,
+  cutoffTimestamp: string | null
+): Promise<VoteResult> {
   let allReactions: GitHubReaction[] = [];
   let page = 1;
 
@@ -140,13 +214,14 @@ async function getPRVotes(owner: string, repo: string, prNumber: number): Promis
     const response = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/issues/${prNumber}/reactions?per_page=100&page=${page}`,
       {
-        headers: getHeaders("application/vnd.github.squirrel-girl-preview+json"),
+        headers: getHeaders(
+          "application/vnd.github.squirrel-girl-preview+json"
+        ),
         next: { revalidate: 300 },
-      },
+      }
     );
 
     if (!response.ok) {
-      // console.error(`Failed to fetch reactions for PR #${prNumber}: ${response.status} with message ${await response.text()}`);
       break;
     }
 
@@ -165,7 +240,23 @@ async function getPRVotes(owner: string, repo: string, prNumber: number): Promis
     page++;
   }
 
-  return allReactions.filter((r) => r.content === "+1").length - allReactions.filter((r) => r.content === "-1").length;
+  const totalVotes =
+    allReactions.filter((r) => r.content === "+1").length -
+    allReactions.filter((r) => r.content === "-1").length;
+
+  let validReactions = allReactions;
+  if (cutoffTimestamp) {
+    const cutoffTime = new Date(cutoffTimestamp).getTime();
+    validReactions = allReactions.filter(
+      (r) => new Date(r.created_at).getTime() > cutoffTime
+    );
+  }
+
+  const votes =
+    validReactions.filter((r) => r.content === "+1").length -
+    validReactions.filter((r) => r.content === "-1").length;
+
+  return { votes, totalVotes };
 }
 
 async function getPRMergeStatus(

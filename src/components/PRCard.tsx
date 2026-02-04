@@ -93,6 +93,18 @@ export function PRCard({ pr, rank }: PRCardProps) {
             <span className={rank === 1 ? 'pr-card-votes-count-leading' : 'pr-card-votes-count-normal'}>
               <b>{pr.votes}</b>
             </span>
+            {pr.codeChanged && (
+              <div style={{ marginTop: '4px', fontSize: '10px', fontFamily: 'Arial, sans-serif' }}>
+                <span style={{ color: '#cc6600', fontWeight: 'bold' }}>
+                  Code changed
+                </span>
+                {pr.totalVotes !== pr.votes && (
+                  <div style={{ color: '#666', fontSize: '9px' }}>
+                    ({pr.totalVotes} total)
+                  </div>
+                )}
+              </div>
+            )}
             <div style={{ marginTop: '8px', fontSize: '11px', fontFamily: 'Arial, sans-serif' }}>
               {(!pr.isMergeable || !pr.checksPassed) && (
                 <>
