@@ -2,6 +2,8 @@
 
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { soundPlayer } from "@/utils/sounds";
 
 interface Web2BrowserChromeProps {
   children: ReactNode;
@@ -9,6 +11,7 @@ interface Web2BrowserChromeProps {
 
 export function Web2BrowserChrome({ children }: Web2BrowserChromeProps) {
   const router = useRouter();
+  const { user, login, logout } = useAuth();
   const [showBookmarksPanel, setShowBookmarksPanel] = useState(false);
 
   const handleBack = () => {
@@ -40,7 +43,9 @@ export function Web2BrowserChrome({ children }: Web2BrowserChromeProps) {
           <div className="web2-traffic-light web2-traffic-minimize" />
           <div className="web2-traffic-light web2-traffic-maximize" />
         </div>
-        <span className="web2-titlebar-text">OpenChaos.dev — Mozilla Firefox</span>
+        <span className="web2-titlebar-text">
+          {user ? `OpenChaos.dev — ${user.login} — Mozilla Firefox` : 'OpenChaos.dev — Mozilla Firefox'}
+        </span>
         <div style={{ width: 54 }} />
       </div>
 
@@ -95,6 +100,35 @@ export function Web2BrowserChrome({ children }: Web2BrowserChromeProps) {
           <span className="web2-addressbar-url">https://openchaos.dev</span>
         </div>
         <button className="web2-addressbar-go">Go</button>
+        {user ? (
+          <button
+            className="web2-auth-button web2-auth-button-logout"
+            onClick={() => {
+              soundPlayer.playShutdown();
+              logout();
+            }}
+            title={`Logged in as ${user.login} — click to logout`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={user.avatar_url} alt={user.login} className="web2-auth-avatar" />
+            Logout
+          </button>
+        ) : (
+          <button
+            className="web2-auth-button web2-auth-button-login"
+            onClick={() => {
+              const audio = soundPlayer.playStartup();
+              if (audio) {
+                audio.addEventListener('ended', () => login());
+              } else {
+                login();
+              }
+            }}
+            title="Login with GitHub to vote"
+          >
+            🔐 Login
+          </button>
+        )}
       </div>
 
       {/* Content Area with Side Panels */}
