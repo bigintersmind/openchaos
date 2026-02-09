@@ -15,19 +15,9 @@ export default function Home() {
       <Countdown />
       <ControlledChaos />
       <div className="page-container">
-        {/* Open PRs Section */}
-        <div className="web2-section">
-          <div className="web2-section-header">
-            <span className="web2-section-title">Open PRs — Vote to Merge</span>
-          </div>
-          <div className="web2-section-body">
-            <div className="page-content-flex">
-              <Suspense fallback={<Web2LoadingSpinner text="Loading PRs..." />}>
-                <PRList />
-              </Suspense>
-            </div>
-          </div>
-        </div>
+        <Suspense fallback={<Web2LoadingSpinner text="Loading PRs..." />}>
+          <PRList />
+        </Suspense>
 
         {/* Hall of Chaos Section */}
         <div className="web2-section">
@@ -35,11 +25,9 @@ export default function Home() {
             <span className="web2-section-title">Hall of Chaos — Past Winners</span>
           </div>
           <div className="web2-section-body">
-            <div className="page-content-flex">
-              <Suspense fallback={<Web2LoadingSpinner text="Loading history..." />}>
-                <HallOfChaos />
-              </Suspense>
-            </div>
+            <Suspense fallback={<Web2LoadingSpinner text="Loading history..." />}>
+              <HallOfChaos />
+            </Suspense>
           </div>
         </div>
       </div>

@@ -750,7 +750,7 @@
 
 .page-content-flex {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
 }
 
 .page-pr-container {
@@ -887,6 +887,72 @@
   color: #fff;
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+/* ===== PR LIST SECTIONS ===== */
+.pr-list-section {
+  margin-bottom: 24px;
+}
+
+.pr-list-section-header {
+  border: none !important;
+  border-collapse: collapse;
+}
+
+.pr-list-section-header-cell {
+  background: linear-gradient(to bottom, #f8f8f8 0%, #e8e8e8 100%);
+  padding: 10px 16px !important;
+  border-bottom: 2px solid #2a5db0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2a5db0;
+  letter-spacing: 0.5px;
+  border-radius: 6px 6px 0 0;
+}
+
+[data-theme="dark"] .pr-list-section-header-cell {
+  background: linear-gradient(to bottom, #333 0%, #2a2a2a 100%);
+  border-bottom-color: #5b9bd5;
+  color: #5b9bd5;
+}
+
+.pr-list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-list-expand-wrapper {
+  text-align: center;
+  margin: 12px 0 16px;
+}
+
+.pr-list-expand-button {
+  background: linear-gradient(to bottom, #f8f8f8 0%, #e0e0e0 100%);
+  color: #2a5db0;
+  border: 1px solid #ccc;
+  padding: 6px 20px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.pr-list-expand-button:hover {
+  background: linear-gradient(to bottom, #fff 0%, #eee 100%);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+[data-theme="dark"] .pr-list-expand-button {
+  background: linear-gradient(to bottom, #444 0%, #333 100%);
+  border-color: #555;
+  color: #5b9bd5;
+}
+
+[data-theme="dark"] .pr-list-expand-button:hover {
+  background: linear-gradient(to bottom, #555 0%, #444 100%);
 }
 
 /* ===== PR CARD COMPONENT ===== */
