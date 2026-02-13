@@ -98,7 +98,7 @@ export function Web2Layout({ children }: Web2LayoutProps) {
           <Web2Footer />
         </main>
 
-        <Cat isMidiPlayerOpen={false} />
+        <Cat />
         <StatusBar />
         <Clippy />
       </Web2BrowserChrome>
