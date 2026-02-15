@@ -23,7 +23,7 @@ export function Web2Footer() {
       </div>
       <div className="web2-footer-bottom">
         <p>OpenChaos.dev — A self-evolving open source project. Vote on PRs. Winner gets merged daily.</p>
-        <p style={{ marginTop: '4px' }}>Last updated: {new Date().toLocaleDateString()} · Webmaster: skridlevsky@geocities.com</p>
+        <p style={{ marginTop: '4px' }}>Updated daily at 19:00 UTC · Webmaster: skridlevsky@geocities.com</p>
       </div>
     </footer>
   );

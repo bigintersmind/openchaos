@@ -4,7 +4,6 @@ import { ControlledChaos } from "@/components/ControlledChaos";
 
 import { PRList } from "@/components/PRList";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Web2Layout } from "@/components/Web2Layout";
 import { HallOfChaos } from "@/components/HallOfChaos";
 import { Web2LoadingSpinner } from "@/components/Web2LoadingSpinner";

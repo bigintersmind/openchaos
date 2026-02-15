@@ -118,9 +118,18 @@ export function Web2BrowserChrome({ children }: Web2BrowserChromeProps) {
             className="web2-auth-button web2-auth-button-login"
             onClick={() => {
               const audio = soundPlayer.playStartup();
+              const loginTimeout = setTimeout(() => login(), 2000);
               if (audio) {
-                audio.addEventListener('ended', () => login());
+                audio.addEventListener('ended', () => {
+                  clearTimeout(loginTimeout);
+                  login();
+                });
+                audio.addEventListener('error', () => {
+                  clearTimeout(loginTimeout);
+                  login();
+                });
               } else {
+                clearTimeout(loginTimeout);
                 login();
               }
             }}
