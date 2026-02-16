@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 
 function getNextMergeTime(): Date {
   const now = new Date();
@@ -69,31 +69,19 @@ export function Countdown() {
     return () => clearInterval(interval);
   }, [target]);
 
-  if (!mounted) {
-    return (
-      <div className="countdown-container">
-        <div className="countdown-header-bar">
-          <div className="countdown-header">
-            Next Merge Countdown
-          </div>
-        </div>
-        <div className="countdown-digits-row">
-          <CountdownDigit value="--" label="Days" />
-          <span className="countdown-separator">:</span>
-          <CountdownDigit value="--" label="Hours" />
-          <span className="countdown-separator">:</span>
-          <CountdownDigit value="--" label="Mins" />
-          <span className="countdown-separator">:</span>
-          <CountdownDigit value="--" label="Secs" />
-        </div>
-        <div className="countdown-footer-bar">
-          <div className="countdown-footer">
-            Vote now — time is running out!
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const digits: { value: string; label: string }[] = mounted
+    ? [
+        { value: String(time.days), label: "Days" },
+        { value: pad(time.hours), label: "Hours" },
+        { value: pad(time.minutes), label: "Mins" },
+        { value: pad(time.seconds), label: "Secs" },
+      ]
+    : [
+        { value: "--", label: "Days" },
+        { value: "--", label: "Hours" },
+        { value: "--", label: "Mins" },
+        { value: "--", label: "Secs" },
+      ];
 
   return (
     <div className="countdown-container">
@@ -103,13 +91,12 @@ export function Countdown() {
         </div>
       </div>
       <div className="countdown-digits-row">
-        <CountdownDigit value={String(time.days)} label="Days" />
-        <span className="countdown-separator">:</span>
-        <CountdownDigit value={pad(time.hours)} label="Hours" />
-        <span className="countdown-separator">:</span>
-        <CountdownDigit value={pad(time.minutes)} label="Mins" />
-        <span className="countdown-separator">:</span>
-        <CountdownDigit value={pad(time.seconds)} label="Secs" />
+        {digits.map((digit, i) => (
+          <Fragment key={digit.label}>
+            {i > 0 && <span className="countdown-separator">:</span>}
+            <CountdownDigit value={digit.value} label={digit.label} />
+          </Fragment>
+        ))}
       </div>
       <div className="countdown-footer-bar">
         <div className="countdown-footer">

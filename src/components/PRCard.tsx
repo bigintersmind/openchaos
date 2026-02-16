@@ -12,13 +12,12 @@ interface PRCardProps {
   rank: number;
 }
 
-function chooseURL(url: string) {
+function chooseURL(url: string): string {
   // 10% chance to Rickroll
   if (Math.random() <= 0.10) {
     return "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-  } else {
-    return url;
   }
+  return url;
 }
 
 type VoteStatus = 'idle' | 'voting' | 'success' | 'error';
@@ -42,13 +41,24 @@ export function PRCard({ pr, rank }: PRCardProps) {
 
   const hasConflicts = !pr.isMergeable;
 
-  const statusTitle = pr.isMergeable && pr.checksPassed
-    ? "All checks passed & no conflicts"
-    : hasConflicts && !pr.checksPassed
-      ? (containsRhymes ? "Merge conflicts & checks failed — will not merge" : "No rhyme & checks failed — will not merge")
-      : hasConflicts
-        ? (containsRhymes ? "Has merge conflicts — will not merge" : "No rhyme or reason — will not merge")
-        : "Checks pending — will still merge";
+  function getStatusTitle(): string {
+    if (pr.isMergeable && pr.checksPassed) {
+      return "All checks passed & no conflicts";
+    }
+    if (hasConflicts && !pr.checksPassed) {
+      return containsRhymes
+        ? "Merge conflicts & checks failed — will not merge"
+        : "No rhyme & checks failed — will not merge";
+    }
+    if (hasConflicts) {
+      return containsRhymes
+        ? "Has merge conflicts — will not merge"
+        : "No rhyme or reason — will not merge";
+    }
+    return "Checks pending — will still merge";
+  }
+
+  const statusTitle = getStatusTitle();
 
   // Reset optimistic votes when PR votes change
   useEffect(() => {
@@ -90,11 +100,7 @@ export function PRCard({ pr, rank }: PRCardProps) {
       });
 
       if (response.ok) {
-        if (reaction === '+1') {
-          soundPlayer.playUpvote();
-        } else {
-          soundPlayer.playDownvote();
-        }
+        reaction === '+1' ? soundPlayer.playUpvote() : soundPlayer.playDownvote();
         soundPlayer.playSuccess();
 
         setVoteStatus('success');
@@ -303,7 +309,8 @@ export function PRCard({ pr, rank }: PRCardProps) {
                           handleVote(parsed.reaction);
                         }
                       }
-                    } catch {
+                    } catch (e) {
+                      console.error('Failed to parse last vote attempt:', e);
                       localStorage.removeItem('last_vote_attempt');
                     }
                   }}

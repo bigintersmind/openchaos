@@ -16,12 +16,29 @@ const TAB_ITEMS: { id: Section; label: string }[] = [
   { id: "new", label: "Newest" },
 ];
 
-interface Web2FramesLayoutProps {
+interface SectionDataProps {
   topByVotes: PullRequest[];
   rising: PullRequest[];
   newest: PullRequest[];
   discussed: PullRequest[];
   controversial: PullRequest[];
+}
+
+type Web2FramesLayoutProps = SectionDataProps;
+
+function SectionContent({ section, topByVotes, rising, newest, discussed, controversial }: SectionDataProps & { section: Section }) {
+  switch (section) {
+    case "votes":
+      return <ExpandablePRSection prs={topByVotes} showRank />;
+    case "rising":
+      return <ExpandablePRSection prs={rising.map((pr) => ({ ...pr, votes: pr.hotScore }))} />;
+    case "new":
+      return <ExpandablePRSection prs={newest} />;
+    case "discussed":
+      return <ExpandablePRSection prs={discussed} />;
+    case "controversial":
+      return <ExpandablePRSection prs={controversial} />;
+  }
 }
 
 export function Web2FramesLayout({ topByVotes, rising, newest, discussed, controversial }: Web2FramesLayoutProps) {
@@ -61,23 +78,14 @@ export function Web2FramesLayout({ topByVotes, rising, newest, discussed, contro
       </div>
 
       <div className="web2-section-body">
-        {activeSection === "votes" && (
-          <ExpandablePRSection prs={topByVotes} showRank />
-        )}
-        {activeSection === "rising" && (
-          <ExpandablePRSection
-            prs={rising.map((pr) => ({ ...pr, votes: pr.hotScore }))}
-          />
-        )}
-        {activeSection === "new" && (
-          <ExpandablePRSection prs={newest} />
-        )}
-        {activeSection === "discussed" && (
-          <ExpandablePRSection prs={discussed} />
-        )}
-        {activeSection === "controversial" && (
-          <ExpandablePRSection prs={controversial} />
-        )}
+        <SectionContent
+          section={activeSection}
+          topByVotes={topByVotes}
+          rising={rising}
+          newest={newest}
+          discussed={discussed}
+          controversial={controversial}
+        />
       </div>
     </div>
   );

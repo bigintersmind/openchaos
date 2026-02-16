@@ -12,14 +12,12 @@ interface PRCardProps {
   distinguishLeading?: boolean,
 }
 
-function chooseURL(url: string) {
+function chooseURL(url: string): string {
   // 10% chance to Rickroll
   if (Math.random() <= 0.10) {
-    // Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)
     return "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-  } else {
-    return url;
   }
+  return url;
 }
 
 type VoteStatus = 'idle' | 'voting' | 'success' | 'error';
@@ -31,6 +29,17 @@ export function PRCard({ pr, distinguishLeading = true }: PRCardProps) {
   const isLeading = pr.rank === 1 && distinguishLeading;
   const containsRhymes = hasRhymingWords(pr.title);
   const hasConflict = !pr.isMergeable || !containsRhymes;
+  const hasMergeIssues = !pr.isMergeable || !pr.checksPassed;
+
+  function getMergeStatusText(): string {
+    if (!pr.isMergeable && !pr.checksPassed) {
+      return "Conflicts & Checks failed";
+    }
+    if (!pr.isMergeable) {
+      return containsRhymes ? "Merge conflicts" : "No rhyme or reason";
+    }
+    return "Checks failed";
+  }
 
   const [voteStatus, setVoteStatus] = useState<VoteStatus>('idle');
   const [optimisticVotes, setOptimisticVotes] = useState(pr.votes);
@@ -86,12 +95,7 @@ export function PRCard({ pr, distinguishLeading = true }: PRCardProps) {
       });
 
       if (response.ok) {
-        // Success! Play sound
-        if (reaction === '+1') {
-          soundPlayer.playUpvote();
-        } else {
-          soundPlayer.playDownvote();
-        }
+        reaction === '+1' ? soundPlayer.playUpvote() : soundPlayer.playDownvote();
         soundPlayer.playSuccess();
 
         setVoteStatus('success');
@@ -135,12 +139,15 @@ export function PRCard({ pr, distinguishLeading = true }: PRCardProps) {
         soundPlayer.playError();
       }
     } catch (error) {
-      // Revert optimistic update
+      console.error('Vote failed:', error);
       setOptimisticVotes(pr.votes);
       setVoteStatus('error');
       setCanRetry(true);
-      setErrorDetails('Network error');
-      setFeedbackMessage('🌐 Network error. Check connection.');
+      const isNetworkError = error instanceof TypeError && String(error.message).includes('fetch');
+      setErrorDetails(isNetworkError ? 'Network error' : 'Unexpected error');
+      setFeedbackMessage(isNetworkError
+        ? '🌐 Network error. Check connection.'
+        : '❌ Something went wrong. Try again.');
       soundPlayer.playError();
     }
   };
@@ -321,10 +328,17 @@ export function PRCard({ pr, distinguishLeading = true }: PRCardProps) {
           {canRetry && (
             <button
               onClick={() => {
-                const lastVote = localStorage.getItem("last_vote_attempt");
-                if (lastVote) {
-                  const { reaction } = JSON.parse(lastVote);
-                  handleVote(reaction);
+                try {
+                  const lastVote = localStorage.getItem("last_vote_attempt");
+                  if (lastVote) {
+                    const parsed = JSON.parse(lastVote);
+                    if (parsed?.reaction) {
+                      handleVote(parsed.reaction);
+                    }
+                  }
+                } catch {
+                  console.error('Failed to parse last vote attempt');
+                  localStorage.removeItem("last_vote_attempt");
                 }
               }}
               style={{
@@ -346,18 +360,7 @@ export function PRCard({ pr, distinguishLeading = true }: PRCardProps) {
 
       {/* Merge status */}
       <div>&nbsp;&nbsp;&nbsp;&nbsp;
-        {(!pr.isMergeable || !pr.checksPassed) && (
-          <span>
-            {!pr.isMergeable && !pr.checksPassed
-              ? "Conflicts & Checks failed"
-              : !pr.isMergeable
-                ? containsRhymes
-                  ? "Merge conflicts"
-                  : "No rhyme or reason"
-                : "Checks failed"}
-          </span>
-        )}
-        {(!pr.isMergeable || !pr.checksPassed) && " "}
+        {hasMergeIssues && <span>{getMergeStatusText()} </span>}
       </div>
     </div>
   );

@@ -60,24 +60,14 @@ export function Countdown() {
     return () => clearInterval(interval);
   }, [target]);
 
-  if (!mounted) {
-    return (
-      <div>
-        <div>NEXT MERGE COUNTDOWN</div>
-        <div>
-          -- DAYS : -- HOURS : -- MINS : -- SECS
-        </div>
-        <div>&nbsp;</div>
-      </div>
-    );
-  }
+  const display = mounted
+    ? `${pad(time.hours)} HOURS : ${pad(time.minutes)} MINS : ${pad(time.seconds)} SECS : ${pad(time.milliseconds, 3)} MS`
+    : "-- DAYS : -- HOURS : -- MINS : -- SECS";
 
   return (
     <div>
       <div>NEXT MERGE COUNTDOWN</div>
-      <div>
-        {pad(time.hours)} HOURS : {pad(time.minutes)} MINS : {pad(time.seconds)} SECS : {pad(time.milliseconds, 3)} MS
-      </div>
+      <div>{display}</div>
       <div>&nbsp;</div>
     </div>
   );
