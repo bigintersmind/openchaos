@@ -225,6 +225,7 @@ export function PRCard({ pr, rank }: PRCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             className="pr-card-link"
+            suppressHydrationWarning
           >
             View &amp; Vote on GitHub →
           </a>
