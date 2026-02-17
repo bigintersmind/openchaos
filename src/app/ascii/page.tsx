@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Countdown } from "@/components/ascii/Countdown";
+import { ControlledChaos } from "@/components/ControlledChaos";
 import { PRList } from "@/components/ascii/PRList";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HallOfChaos } from "@/components/ascii/HallOfChaos";
@@ -22,6 +23,7 @@ export default function AsciiHome() {
         <ThemeToggle />
       </div>
       <Countdown />
+      <ControlledChaos />
 
       <div>
         <div>

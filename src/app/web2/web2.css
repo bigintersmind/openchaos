@@ -2513,3 +2513,80 @@ center {
   border-bottom: 1px solid #fff;
   font-weight: 700;
 }
+
+/* ===== CONTROLLED CHAOS COMPONENT OVERRIDES ===== */
+.ccContainer {
+  font-family: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 100%;
+  padding: 16px;
+}
+
+[data-theme="dark"] .ccContainer {
+  background: #2a2a2a;
+  border-color: #444;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.ccContainer h1 {
+  font-family: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+  color: #2a5db0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .ccContainer h1 {
+  color: #5b9bd5;
+}
+
+.chaos-toggle-button {
+  font-family: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(to bottom, #5b9bd5 0%, #2a5db0 100%);
+  color: #fff;
+  border: 1px solid #1a4a90;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.chaos-toggle-button::before,
+.chaos-toggle-button::after {
+  content: none;
+}
+
+.chaos-toggle-button:hover {
+  background: linear-gradient(to bottom, #6babef 0%, #3a6dc0 100%);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.chaos-toggle-button:active {
+  border-style: solid;
+  background: linear-gradient(to bottom, #2a5db0 0%, #1a4a90 100%);
+}
+
+[data-theme="dark"] .chaos-toggle-button {
+  background: linear-gradient(to bottom, #3a6da0 0%, #1a4d80 100%);
+  border-color: #0a3a70;
+}
+
+[data-theme="dark"] .chaos-toggle-button:hover {
+  background: linear-gradient(to bottom, #4a7db0 0%, #2a5d90 100%);
+  color: #fff;
+}
+
+.world-chaos {
+  font-family: 'Lucida Grande', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+  color: #2a5db0;
+}
+
+[data-theme="dark"] .world-chaos {
+  color: #5b9bd5;
+}

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Countdown } from "@/components/Countdown";
+import { ControlledChaos } from "@/components/ControlledChaos";
 import { PRList } from "@/components/PRList";
 
 import { Web2Layout } from "@/components/Web2Layout";
@@ -10,6 +11,7 @@ export default function Web2Home() {
   return (
     <Web2Layout>
       <Countdown />
+      <ControlledChaos />
       <div className="page-container">
         <Suspense fallback={<Web2LoadingSpinner text="Loading PRs..." />}>
           <PRList />
