@@ -262,6 +262,10 @@ export async function getOrganizedPRs(): Promise<OrganizedPRs> {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
+  topByVotes.forEach((pr, index) => {
+    pr.rank = index + 1;
+  });
+
   // Rising: sorted by hot score, conflicts at bottom
   const rising = [...prsWithTrending]
     .sort((a, b) => {
