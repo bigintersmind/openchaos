@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Fartscroll } from "@/components/Fartscroll";
+import { PoopExhibit } from "./PoopExhibit";
 import "./museum.css";
 
 export const metadata = {
@@ -9,9 +11,11 @@ export const metadata = {
 export default function MuseumPage() {
   return (
     <div className="museum">
+      <Fartscroll />
       <header className="museum-header">
         <h1 className="museum-title">OpenChaos Museum</h1>
         <p className="museum-subtitle">Permanent Collection</p>
+        <p className="museum-subtitle">No cats allowed (except guide cats).</p>
         <nav className="museum-nav">
           <Link href="/">Home</Link>
         </nav>
@@ -30,6 +34,16 @@ export default function MuseumPage() {
             <div className="museum-label-name">Untitled (Dick Butt)</div>
             <div className="museum-label-material">Animated GIF, digital file</div>
             <div className="museum-label-date">c. 2013–2014, Anonymous</div>
+            <div className="museum-label-credit">Gift of the OpenChaos community. 2026.</div>
+          </div>
+        </article>
+
+        <article className="museum-exhibit">
+          <PoopExhibit />
+          <div className="museum-label">
+            <div className="museum-label-name">Fartscroll</div>
+            <div className="museum-label-material">Sound effect, methane gas</div>
+            <div className="museum-label-date">2026, OpenChaos</div>
             <div className="museum-label-credit">Gift of the OpenChaos community. 2026.</div>
           </div>
         </article>
