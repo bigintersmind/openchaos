@@ -82,6 +82,11 @@ export function PRCard({ pr, distinguishLeading = true, scoreLabel = "Net Score"
             {" · "}
             <TimeAgo isoDate={pr.createdAt} />
           </div>
+          {pr.pitch && (
+            <div className="pr-card-pitch" title="Author's pitch">
+              💬 <em>{pr.pitch}</em>
+            </div>
+          )}
           <a href={url} target="_blank" rel="noopener noreferrer" className="pr-card-link" suppressHydrationWarning>
             View &amp; Vote on GitHub →
           </a>
