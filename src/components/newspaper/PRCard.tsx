@@ -95,6 +95,15 @@ export function PRCard({ pr, isBanner = false, distinguishLeading = true, scoreL
     return (
       <div ref={cardRef} className={`np-banner ${animationClasses}`} style={{ position: "relative" }}>
         <span className="np-banner-badge">EDITOR&apos;S CHOICE</span>
+        {pr.isAgent && (
+          <span
+            className="np-banner-badge"
+            title={pr.agentTool ? `agent-authored (${pr.agentTool})` : "agent-authored"}
+            style={{ marginLeft: "8px", background: "#2a2218", color: "#f4ede4", fontStyle: "italic" }}
+          >
+            VIBECODED
+          </span>
+        )}
         <div className="np-banner-headline">{pr.title}</div>
         <div className="np-banner-byline">
           by{" "}
@@ -125,6 +134,15 @@ export function PRCard({ pr, isBanner = false, distinguishLeading = true, scoreL
             {isLeading && <span className="np-badge np-badge-editors-choice">LEADING</span>}
             {pr.isTrending && <span className="np-badge np-badge-trending">TRENDING</span>}
             {hasMergeIssues && <span className="np-badge np-badge-conflict">INELIGIBLE</span>}
+            {pr.isAgent && (
+              <span
+                className="np-badge"
+                title={pr.agentTool ? `agent-authored (${pr.agentTool})` : "agent-authored"}
+                style={{ background: "#2a2218", color: "#f4ede4", fontStyle: "italic", letterSpacing: "0.06em" }}
+              >
+                VIBECODED
+              </span>
+            )}
             {pr.title}
           </div>
           <div className="np-article-byline">

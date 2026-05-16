@@ -73,7 +73,29 @@ export function PRCard({ pr, distinguishLeading = true, scoreLabel = "Net Score"
 
         {/* Flexible content column */}
         <div className="pr-card-content-section">
-          <div className="pr-card-title">{pr.title}</div>
+          <div className="pr-card-title">
+            {pr.isAgent && (
+              <span
+                title={pr.agentTool ? `agent-authored (${pr.agentTool})` : "agent-authored"}
+                style={{
+                  display: "inline-block",
+                  background: "linear-gradient(180deg, #f8b500 0%, #c08800 100%)",
+                  color: "#1a1a1a",
+                  fontWeight: 700,
+                  fontSize: "10px",
+                  padding: "1px 6px",
+                  marginRight: "6px",
+                  border: "1px outset #f8b500",
+                  fontFamily: "Tahoma, Verdana, Arial, sans-serif",
+                  verticalAlign: "middle",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                AI
+              </span>
+            )}
+            {pr.title}
+          </div>
           <div className="pr-card-meta">
             by{" "}
             <a href={authorHref} className="pr-card-author-link">

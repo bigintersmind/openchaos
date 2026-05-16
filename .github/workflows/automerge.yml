@@ -1,8 +1,12 @@
-name: Merge top-voted PR weekly
+name: Merge top-voted PR (Saturdays + Agents Welcome event window)
 
 on:
   schedule:
-    - cron: "0 19 * * 6"
+    # Fires every day at 19:00 UTC. The script gates internally: it proceeds
+    # only when the date is inside the Agents Welcome event window OR is a
+    # Saturday. Outside both, it logs and exits without merging. Once the
+    # event window passes, behavior reverts automatically to Saturday-only.
+    - cron: "0 19 * * *"
   workflow_dispatch:
 
 permissions:
@@ -34,6 +38,23 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+
+            // Agents Welcome event window — mirrors src/lib/agent-event.ts.
+            // Update both this block and that file when announcing a new window.
+            const EVENT_START_ISO = "2026-05-16T00:00:00Z";
+            const EVENT_END_ISO = "2026-05-30T00:00:00Z";
+
+            const now = new Date();
+            const eventActive = now.getTime() >= new Date(EVENT_START_ISO).getTime()
+              && now.getTime() < new Date(EVENT_END_ISO).getTime();
+            const isSaturdayUTC = now.getUTCDay() === 6;
+
+            if (!eventActive && !isSaturdayUTC) {
+              console.log(`Today is ${now.toUTCString()} — not Saturday and not in event window. Skipping.`);
+              console.log(`Event window: ${EVENT_START_ISO} → ${EVENT_END_ISO}`);
+              return;
+            }
+            console.log(`Merge gate open: eventActive=${eventActive}, isSaturdayUTC=${isSaturdayUTC}`);
 
             // Rhyming title check — mirrors src/lib/rhymes.ts
             let rhymesWith;
@@ -219,8 +240,9 @@ jobs:
                 console.log(`\nMerged PR #${pr.number} by @${pr.author}: "${pr.title}" (${pr.votes} net votes)`);
 
                 try {
+                  const raceLabel = eventActive ? "the nightly race" : "the weekly race";
                   const body = [
-                    `This PR won the weekly race,`,
+                    `This PR won ${raceLabel},`,
                     `Merged with chaos, grace, and pace!`,
                     ``,
                     `**Votes:** +${pr.votes} net (${pr.thumbsUp} :+1: / ${pr.thumbsDown} :-1:)`,

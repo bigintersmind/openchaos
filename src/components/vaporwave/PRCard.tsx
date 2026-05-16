@@ -59,13 +59,22 @@ export function PRCard({ pr, distinguishLeading = true, scoreLabel = "Net" }: PR
     "vw-card",
     hasConflict ? "vw-card-conflict" : "",
     isLeading && !hasConflict ? "vw-card-leading" : "",
+    pr.isAgent ? "vw-card-agent" : "",
     isSixtySeven ? "sixseven-shake" : "",
     showShake ? "shake-67-animation" : "",
     showCelebration ? "celebrate-animation" : "",
   ].filter(Boolean).join(" ");
 
+  const agentBorderStyle: React.CSSProperties = pr.isAgent
+    ? {
+        outline: "1px dashed #ff71ce",
+        outlineOffset: "2px",
+        boxShadow: "0 0 0 1px rgba(1,205,254,0.5) inset, 0 0 14px rgba(255,113,206,0.35)",
+      }
+    : {};
+
   return (
-    <div ref={cardRef} className={cardClass} style={{ position: "relative" }}>
+    <div ref={cardRef} className={cardClass} style={{ position: "relative", ...agentBorderStyle }}>
       <div className="vw-card-header">
         <div className="vw-card-rank">
           {hasConflict ? "\u2013" : (distinguishLeading ? pr.rank : pr.number)}
@@ -74,6 +83,20 @@ export function PRCard({ pr, distinguishLeading = true, scoreLabel = "Net" }: PR
           <div className="vw-card-title">
             {isLeading && <span className="vw-badge vw-badge-leading">Leading</span>}
             {pr.isTrending && <span className="vw-badge vw-badge-trending">Trending</span>}
+            {pr.isAgent && (
+              <span
+                className="vw-badge"
+                title={pr.agentTool ? `agent-authored (${pr.agentTool})` : "agent-authored"}
+                style={{
+                  background: "linear-gradient(90deg, #ff71ce, #01cdfe)",
+                  color: "#000",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                }}
+              >
+                AGENT
+              </span>
+            )}
             <a href={linkHref} target="_blank" rel="noopener noreferrer" suppressHydrationWarning>
               {pr.title}
             </a>

@@ -2,10 +2,12 @@
 
 import { useMemo } from "react";
 import type { PullRequest } from "@/lib/github";
+import type { LeaderboardData } from "@/lib/leaderboard";
 import { FramesLayout as SharedFramesLayout } from "@/components/shared/FramesLayout";
 import { ExpandablePRSection } from "@/components/shared/ExpandablePRSection";
 import { VoteStatusProvider } from "@/contexts/VoteStatusContext";
 import { PRCard } from "./PRCard";
+import { Showdown } from "./Showdown";
 
 const ASCII_TABS = [
   { id: "votes" as const, label: "TOP VOTES", icon: "*" },
@@ -13,6 +15,7 @@ const ASCII_TABS = [
   { id: "controversial" as const, label: "CONTROVERSIAL", icon: "!" },
   { id: "discussed" as const, label: "DISCUSSED", icon: "#" },
   { id: "new" as const, label: "NEWEST", icon: "+" },
+  { id: "showdown" as const, label: "SHOWDOWN", icon: "&" },
 ];
 
 function AsciiExpandable({ prs, allowDistinguish = false, sectionLabel, scoreLabel }: { prs: PullRequest[]; allowDistinguish?: boolean; sectionLabel?: string; scoreLabel?: string }) {
@@ -61,6 +64,7 @@ interface Props {
   newest: PullRequest[];
   discussed: PullRequest[];
   controversial: PullRequest[];
+  leaderboard: LeaderboardData;
 }
 
 export function FramesLayout(props: Props) {
@@ -69,12 +73,15 @@ export function FramesLayout(props: Props) {
     [props.topByVotes, props.rising, props.newest, props.discussed, props.controversial],
   );
 
+  const { leaderboard, ...sharedProps } = props;
+
   return (
     <VoteStatusProvider prNumbers={prNumbers}>
       <SharedFramesLayout
-        {...props}
+        {...sharedProps}
         tabs={ASCII_TABS}
         ExpandableSection={AsciiExpandable}
+        customSections={{ showdown: <Showdown leaderboard={leaderboard} /> }}
         renderTabs={(tabs, activeSection, setActiveSection) => (
           <div className="mb-6">
             <div className="flex flex-wrap gap-x-4 gap-y-1">

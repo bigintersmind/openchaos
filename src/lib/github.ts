@@ -19,6 +19,10 @@ export interface PullRequest {
   /** Author's self-promo pitch, parsed from <!-- chaos-pitch: ... --> in the PR body */
   pitch: string | null;
   mergedAt: string | null;
+  /** True when the PR body includes <!-- chaos-agent --> or <!-- chaos-agent: tool --> */
+  isAgent: boolean;
+  /** Optional tool name from <!-- chaos-agent: tool --> (e.g. "claude", "cursor"); null when bare or absent */
+  agentTool: string | null;
 }
 
 interface PRVotes {
@@ -43,6 +47,10 @@ export interface MergedPullRequest {
   author: string;
   url: string;
   mergedAt: string;
+  /** True when the merged PR body included <!-- chaos-agent --> (or with tool) */
+  isAgent: boolean;
+  /** Optional tool name from <!-- chaos-agent: tool -->; null when bare or absent */
+  agentTool: string | null;
 }
 
 interface GitHubPR {
@@ -74,14 +82,43 @@ function parsePitch(body: string | null): string | null {
   if (!match) return null;
   const pitch = match[1].trim();
   if (pitch.length === 0) return null;
-  
+
   // Truncate to 256 characters to prevent overflow/site-breaking pitches
   const MAX_PITCH_LENGTH = 256;
   if (pitch.length > MAX_PITCH_LENGTH) {
     return pitch.substring(0, MAX_PITCH_LENGTH).trim() + '…';
   }
-  
+
   return pitch;
+}
+
+const MAX_AGENT_TOOL_LENGTH = 64;
+
+/**
+ * Parse the agent marker from a PR body.
+ *  <!-- chaos-agent -->            -> { isAgent: true, agentTool: null }
+ *  <!-- chaos-agent: claude -->    -> { isAgent: true, agentTool: "claude" }
+ *  (no marker)                     -> { isAgent: false, agentTool: null }
+ *
+ * Contributor-applied opt-in: a badge of honor, not a tax. Mirrors parsePitch.
+ */
+export function parseAgentMarker(body: string | null): { isAgent: boolean; agentTool: string | null } {
+  if (!body) return { isAgent: false, agentTool: null };
+
+  const withTool = body.match(/<!--\s*chaos-agent\s*:\s*([^\n]+?)\s*-->/i);
+  if (withTool) {
+    const tool = withTool[1].trim();
+    return {
+      isAgent: true,
+      agentTool: tool.length === 0 ? null : tool.substring(0, MAX_AGENT_TOOL_LENGTH),
+    };
+  }
+
+  if (/<!--\s*chaos-agent\s*-->/i.test(body)) {
+    return { isAgent: true, agentTool: null };
+  }
+
+  return { isAgent: false, agentTool: null };
 }
 
 interface GitHubReaction {
@@ -161,6 +198,7 @@ export async function getAllPRs(): Promise<PullRequest[]> {
       const detail = await getPRDetail(owner, repo, pr.number);
       const isMergeable = detail.isMergeable && hasRhymingWords(pr.title);
       const checksPassed = await getCommitStatus(owner, repo, pr.head.sha);
+      const agent = parseAgentMarker(pr.body);
       return {
         rank: 0,
         number: pr.number,
@@ -179,6 +217,8 @@ export async function getAllPRs(): Promise<PullRequest[]> {
         hotScore: calculateHotScore(votes),
         isTrending: false, // Set by getOrganizedPRs based on top 5 hot score
         pitch: parsePitch(pr.body),
+        isAgent: agent.isAgent,
+        agentTool: agent.agentTool,
       };
     }),
   );
@@ -235,6 +275,8 @@ export async function getOrganizedPRs(): Promise<OrganizedPRs> {
       author: pr.author,
       url: pr.url,
       mergedAt: pr.mergedAt!,
+      isAgent: pr.isAgent,
+      agentTool: pr.agentTool,
     }));
 
   // Determine which PRs are in top 5 by hot score (these are "trending")
@@ -421,6 +463,7 @@ interface GitHubMergedPR {
   number: number;
   title: string;
   html_url: string;
+  body: string | null;
   user: {
     login: string;
   };
@@ -479,13 +522,18 @@ export async function getMergedPRs(): Promise<MergedPullRequest[]> {
   return allPRs
     .filter((pr) => pr.merged_at !== null && pr.user.login !== REPO_OWNER)
     .sort((a, b) => new Date(b.merged_at!).getTime() - new Date(a.merged_at!).getTime())
-    .map((pr) => ({
-      number: pr.number,
-      title: pr.title,
-      author: pr.user.login,
-      url: pr.html_url,
-      mergedAt: pr.merged_at!,
-    }));
+    .map((pr) => {
+      const agent = parseAgentMarker(pr.body);
+      return {
+        number: pr.number,
+        title: pr.title,
+        author: pr.user.login,
+        url: pr.html_url,
+        mergedAt: pr.merged_at!,
+        isAgent: agent.isAgent,
+        agentTool: agent.agentTool,
+      };
+    });
 }
 
 export interface PRsByAuthor {

@@ -2,10 +2,12 @@
 
 import { useMemo } from "react";
 import type { PullRequest } from "@/lib/github";
+import type { LeaderboardData } from "@/lib/leaderboard";
 import { FramesLayout as SharedFramesLayout } from "@/components/shared/FramesLayout";
 import { ExpandablePRSection } from "@/components/shared/ExpandablePRSection";
 import { VoteStatusProvider } from "@/contexts/VoteStatusContext";
 import { PRCard } from "./PRCard";
+import { Showdown } from "./Showdown";
 
 const VAPORWAVE_TABS = [
   { id: "votes" as const, label: "Top Votes", icon: "\u2605" },
@@ -13,6 +15,7 @@ const VAPORWAVE_TABS = [
   { id: "controversial" as const, label: "Controversial", icon: "\u26A1" },
   { id: "discussed" as const, label: "Discussed", icon: "\u2709" },
   { id: "new" as const, label: "Newest", icon: "\u2726" },
+  { id: "showdown" as const, label: "Showdown", icon: "\u26A1" },
 ];
 
 function VaporwaveExpandable({ prs, allowDistinguish = false, sectionLabel, scoreLabel }: { prs: PullRequest[]; allowDistinguish?: boolean; sectionLabel?: string; scoreLabel?: string }) {
@@ -39,6 +42,7 @@ interface Props {
   newest: PullRequest[];
   discussed: PullRequest[];
   controversial: PullRequest[];
+  leaderboard: LeaderboardData;
 }
 
 export function FramesLayout(props: Props) {
@@ -47,12 +51,15 @@ export function FramesLayout(props: Props) {
     [props.topByVotes, props.rising, props.newest, props.discussed, props.controversial],
   );
 
+  const { leaderboard, ...sharedProps } = props;
+
   return (
     <VoteStatusProvider prNumbers={prNumbers}>
       <SharedFramesLayout
-        {...props}
+        {...sharedProps}
         tabs={VAPORWAVE_TABS}
         ExpandableSection={VaporwaveExpandable}
+        customSections={{ showdown: <Showdown leaderboard={leaderboard} /> }}
         renderTabs={(tabs, activeSection, setActiveSection) => (
           <div className="vw-tabs">
             {tabs.map((tab) => (

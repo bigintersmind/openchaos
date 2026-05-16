@@ -21,6 +21,8 @@ interface FramesLayoutProps {
   renderBanner?: (pr: PullRequest) => ReactNode;
   separator?: ReactNode;
   renderTabs: (tabs: TabItem[], activeSection: Section, setActiveSection: (s: Section) => void) => ReactNode;
+  /** Optional per-section overrides. When the active section has an entry here, that node renders instead of ExpandableSection (used by the Showdown tab). */
+  customSections?: Partial<Record<Section, ReactNode>>;
   className?: string;
 }
 
@@ -35,10 +37,12 @@ export function FramesLayout({
   renderBanner,
   separator,
   renderTabs,
+  customSections,
   className,
 }: FramesLayoutProps) {
   const { activeSection, setActiveSection } = useSectionNav();
 
+  const customNode = customSections?.[activeSection];
   const skipFirst = !!renderBanner && activeSection === "votes" && topByVotes.length > 0;
   const leadingPR = skipFirst ? topByVotes[0] : null;
 
@@ -55,20 +59,24 @@ export function FramesLayout({
         return discussed;
       case "controversial":
         return controversial;
+      case "showdown":
+        return [];
     }
   }
 
   return (
     <div className={className}>
       {renderTabs(tabs, activeSection, setActiveSection)}
-      {leadingPR && renderBanner && renderBanner(leadingPR)}
-      {leadingPR && separator}
-      <ExpandableSection
-        prs={getSectionPRs()}
-        allowDistinguish={activeSection === "votes"}
-        sectionLabel={tabs.find((t) => t.id === activeSection)?.label}
-        scoreLabel={activeSection === "rising" ? "Hot Score" : "Net Score"}
-      />
+      {!customNode && leadingPR && renderBanner && renderBanner(leadingPR)}
+      {!customNode && leadingPR && separator}
+      {customNode ?? (
+        <ExpandableSection
+          prs={getSectionPRs()}
+          allowDistinguish={activeSection === "votes"}
+          sectionLabel={tabs.find((t) => t.id === activeSection)?.label}
+          scoreLabel={activeSection === "rising" ? "Hot Score" : "Net Score"}
+        />
+      )}
     </div>
   );
 }

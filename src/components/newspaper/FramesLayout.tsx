@@ -2,10 +2,12 @@
 
 import { useMemo } from "react";
 import type { PullRequest } from "@/lib/github";
+import type { LeaderboardData } from "@/lib/leaderboard";
 import { FramesLayout as SharedFramesLayout } from "@/components/shared/FramesLayout";
 import { ExpandablePRSection } from "@/components/shared/ExpandablePRSection";
 import { VoteStatusProvider } from "@/contexts/VoteStatusContext";
 import { PRCard } from "./PRCard";
+import { Showdown } from "./Showdown";
 
 const NEWSPAPER_TABS = [
   { id: "votes" as const, label: "FRONT PAGE" },
@@ -13,6 +15,7 @@ const NEWSPAPER_TABS = [
   { id: "controversial" as const, label: "LETTERS TO THE EDITOR" },
   { id: "discussed" as const, label: "TOWN HALL" },
   { id: "new" as const, label: "LATE EDITION" },
+  { id: "showdown" as const, label: "SHOWDOWN" },
 ];
 
 function NewspaperExpandable({ prs, allowDistinguish = false, scoreLabel }: { prs: PullRequest[]; allowDistinguish?: boolean; scoreLabel?: string }) {
@@ -36,6 +39,7 @@ interface Props {
   newest: PullRequest[];
   discussed: PullRequest[];
   controversial: PullRequest[];
+  leaderboard: LeaderboardData;
 }
 
 export function FramesLayout(props: Props) {
@@ -44,12 +48,15 @@ export function FramesLayout(props: Props) {
     [props.topByVotes, props.rising, props.newest, props.discussed, props.controversial],
   );
 
+  const { leaderboard, ...sharedProps } = props;
+
   return (
     <VoteStatusProvider prNumbers={prNumbers}>
       <SharedFramesLayout
-        {...props}
+        {...sharedProps}
         tabs={NEWSPAPER_TABS}
         ExpandableSection={NewspaperExpandable}
+        customSections={{ showdown: <Showdown leaderboard={leaderboard} /> }}
         renderBanner={(pr) => <PRCard pr={pr} isBanner />}
         separator={<hr className="np-rule-double" />}
         renderTabs={(tabs, activeSection, setActiveSection) => (

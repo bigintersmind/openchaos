@@ -62,8 +62,13 @@ export function PRCard({ pr, distinguishLeading = true, scoreLabel = "Net" }: PR
       {/* Rank, optional badges, title, and PR number */}
       <div>
         <span>#{!hasConflict ? (distinguishLeading ? pr.rank : pr.number) : "N/A"}. </span>
-        {isLeading && <span>[LEADING]</span>}
-        {pr.isTrending && <span>[TRENDING]</span>}
+        {isLeading && <span>[LEADING] </span>}
+        {pr.isTrending && <span>[TRENDING] </span>}
+        {pr.isAgent && (
+          <span title={pr.agentTool ? `agent-authored (${pr.agentTool})` : "agent-authored"}>
+            🤖{" "}
+          </span>
+        )}
         <span>{pr.title}</span>
         <span>(#{pr.number})</span>
       </div>

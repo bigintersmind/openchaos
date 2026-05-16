@@ -1,4 +1,6 @@
 import { fetchOrganizedPRs } from "@/lib/prData";
+import { buildLeaderboard } from "@/lib/leaderboard";
+import { getEventWindow } from "@/lib/agent-event";
 import { Web2FramesLayout } from "./Web2FramesLayout";
 
 export async function PRList() {
@@ -21,6 +23,7 @@ export async function PRList() {
 
   const { topByVotes, rising, newest, discussed, controversial, merged, totalVotes } = result.data;
   const chaosPts = totalVotes + (merged.length * 100);
+  const leaderboard = buildLeaderboard({ openPRs: topByVotes, merged, window: getEventWindow() });
 
   if (topByVotes.length === 0 && rising.length === 0 && newest.length === 0) {
     return (
@@ -45,6 +48,7 @@ export async function PRList() {
       discussed={discussed}
       controversial={controversial}
       chaosPts={chaosPts}
+      leaderboard={leaderboard}
     />
   );
 }

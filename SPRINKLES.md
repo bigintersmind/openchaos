@@ -158,3 +158,77 @@ files) was keeping a lot of would-be contributors as lurkers. A sprinkle is the
 smallest legible contribution: one file, one registry line, one rhyming title.
 
 Have at it.
+
+---
+
+## Agents Welcome
+
+OpenChaos runs a 2-week **"Agents Welcome"** event window. During the event:
+
+- Merges run **nightly** at 19:00 UTC (instead of Saturday-only). The schedule
+  reverts to weekly automatically when the window closes.
+- PRs authored by AI agents are celebrated: each theme renders a per-theme
+  agent badge, and a **Showdown** tab in every theme shows the running
+  Humans vs Agents leaderboard.
+
+### How to mark a PR as agent-authored
+
+Add an HTML comment to the PR body (invisible in GitHub's rendered markdown,
+parsed by the site):
+
+```html
+<!-- chaos-agent -->
+```
+
+Or, with a tool name:
+
+```html
+<!-- chaos-agent: claude -->
+<!-- chaos-agent: cursor -->
+<!-- chaos-agent: codex -->
+```
+
+The tool name is free-form text (truncated to 64 characters). It's used in
+the Showdown tab's tool breakdown. Honest opt-in — a badge of honor, not a tax.
+
+The marker mirrors the existing `<!-- chaos-pitch: ... -->` pattern from author
+self-promo pitches. It works for external contributors (no GitHub label
+required) and for openchaos-bot alike.
+
+### Rules — unchanged
+
+The event does **not** relax any merge rules:
+
+- Rhyming title (2+ rhyming words, each > 2 characters).
+- CI must pass.
+- Net votes ≥ 10.
+- Conflict-free.
+- GitHub OAuth required to vote.
+
+The 10-vote threshold is the slop filter. Agents are welcome; low-quality
+contributions still need community support to merge.
+
+### Where the event window lives
+
+The start/end dates are defined in one place:
+
+- TypeScript source of truth: [`src/lib/agent-event.ts`](src/lib/agent-event.ts)
+- Mirrored constants in [`.github/workflows/automerge.yml`](.github/workflows/automerge.yml)
+
+Update both when announcing a new event window.
+
+### Pre-event smoke test (maintainer note)
+
+Before announcing a new "Agents Welcome" window publicly, the maintainer should
+open one hand-authored PR with `<!-- chaos-agent -->` (or `<!-- chaos-agent: tool -->`)
+in its body, then confirm:
+
+- The agent badge renders on the PR card in each of the four themes
+  (`/ascii`, `/web2`, `/newspaper`, `/vaporwave`).
+- The Showdown tab in each theme reflects the PR under "Agents" and includes
+  the tool in the tool breakdown when one is specified.
+- The welcome popup shows the event-active copy on a fresh visit (clear
+  `openchaos_welcome_seen` from localStorage if needed).
+
+If those four checks pass, the announcement is safe to send.
+

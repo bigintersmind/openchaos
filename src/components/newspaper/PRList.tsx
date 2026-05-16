@@ -1,4 +1,6 @@
 import { fetchOrganizedPRs } from "@/lib/prData";
+import { buildLeaderboard } from "@/lib/leaderboard";
+import { getEventWindow } from "@/lib/agent-event";
 import { FramesLayout } from "./FramesLayout";
 
 export async function PRList() {
@@ -13,7 +15,8 @@ export async function PRList() {
     );
   }
 
-  const { topByVotes, rising, newest, discussed, controversial } = result.data;
+  const { topByVotes, rising, newest, discussed, controversial, merged } = result.data;
+  const leaderboard = buildLeaderboard({ openPRs: topByVotes, merged, window: getEventWindow() });
 
   if (topByVotes.length === 0 && rising.length === 0 && newest.length === 0) {
     return (
@@ -30,6 +33,7 @@ export async function PRList() {
       newest={newest}
       discussed={discussed}
       controversial={controversial}
+      leaderboard={leaderboard}
     />
   );
 }
