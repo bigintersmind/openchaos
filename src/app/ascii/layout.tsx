@@ -3,6 +3,7 @@ import { Clippy } from "@/components/ascii/Clippy";
 import { MidiPlayer } from "@/components/MidiPlayer";
 import { ThemePathProvider } from "@/context/ThemePathContext";
 import { WelcomePopup } from "@/components/WelcomePopup";
+import { Sprinkles } from "@/sprinkles/Sprinkles";
 import "./ascii.css";
 import "./gta-radio.css";
 
@@ -19,6 +20,7 @@ export default function AsciiLayout({
         <Clippy />
         <MidiPlayer />
         <WelcomePopup variant="ascii" />
+        <Sprinkles kind="page-load" />
       </div>
     </ThemePathProvider>
   );

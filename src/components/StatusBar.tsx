@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useThemePath } from "@/context/ThemePathContext";
+import { SPRINKLES } from "@/sprinkles/registry";
+import { sprinklesForTheme } from "@/sprinkles/filter";
+import { useSprinklesEnabled } from "@/sprinkles/useSprinklesEnabled";
 
 const STATUS_MESSAGES = [
   "Welcome to OpenChaos.dev — powered by AJAX and community votes",
@@ -18,13 +22,24 @@ const STATUS_MESSAGES = [
 ];
 
 export function StatusBar() {
+  const theme = useThemePath();
+  const sprinklesEnabled = useSprinklesEnabled();
+
+  const messages = useMemo(() => {
+    if (!sprinklesEnabled) return STATUS_MESSAGES;
+    const extras = sprinklesForTheme(SPRINKLES, "status-bar-message", theme).flatMap((s) => {
+      const weight = Math.max(1, Math.floor(s.weight ?? 1));
+      return Array.from({ length: weight }, () => s.message);
+    });
+    return [...STATUS_MESSAGES, ...extras];
+  }, [theme, sprinklesEnabled]);
+
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageIndex, setMessageIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
 
-  // Scroll through messages character by character
   useEffect(() => {
-    const message = STATUS_MESSAGES[messageIndex];
+    const message = messages[messageIndex % messages.length];
 
     if (charIndex < message.length) {
       const timer = setTimeout(() => {
@@ -33,15 +48,14 @@ export function StatusBar() {
       }, 50);
       return () => clearTimeout(timer);
     } else {
-      // Pause at end of message
       const timer = setTimeout(() => {
         setCharIndex(0);
         setCurrentMessage("");
-        setMessageIndex((messageIndex + 1) % STATUS_MESSAGES.length);
+        setMessageIndex((messageIndex + 1) % messages.length);
       }, 1337);
       return () => clearTimeout(timer);
     }
-  }, [charIndex, messageIndex]);
+  }, [charIndex, messageIndex, messages]);
 
   return (
     <div className="status-bar">

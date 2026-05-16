@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { soundPlayer } from "@/utils/sounds";
+import { useThemePath } from "@/context/ThemePathContext";
+import { SPRINKLES } from "@/sprinkles/registry";
+import { sprinklesForTheme } from "@/sprinkles/filter";
+import { useSprinklesEnabled } from "@/sprinkles/useSprinklesEnabled";
 
 const BOOT_LINES = [
   "CHAOS BIOS v6.6.6 - Entropy Unlimited Inc.",
@@ -183,6 +187,13 @@ export function ChaosTerminal() {
   const [isBooting, setIsBooting] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const theme = useThemePath();
+  const sprinklesEnabled = useSprinklesEnabled();
+  const sprinkleCommands = useMemo(
+    () => sprinklesForTheme(SPRINKLES, "terminal-command", theme),
+    [theme],
+  );
 
   const inputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
@@ -616,13 +627,22 @@ export function ChaosTerminal() {
           break;
         }
 
-        default:
-          addLines(
-            `chaos: ${trimmed.split(" ")[0]}: command not found. Try 'help'.`
-          );
+        default: {
+          const match = sprinklesEnabled
+            ? sprinkleCommands.find((s) => s.keyword.toLowerCase() === lower)
+            : undefined;
+          if (match) {
+            const responseLines = Array.isArray(match.response) ? match.response : [match.response];
+            addLines(...responseLines);
+          } else {
+            addLines(
+              `chaos: ${trimmed.split(" ")[0]}: command not found. Try 'help'.`
+            );
+          }
+        }
       }
     },
-    [addLines, closeTerminal, runAnimatedSequence]
+    [addLines, closeTerminal, runAnimatedSequence, sprinkleCommands, sprinklesEnabled]
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

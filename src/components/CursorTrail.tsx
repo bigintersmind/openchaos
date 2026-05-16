@@ -1,61 +1,89 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useThemePath } from "@/context/ThemePathContext";
+import { SPRINKLES } from "@/sprinkles/registry";
+import { sprinklesForTheme } from "@/sprinkles/filter";
+import { useSprinklesEnabled } from "@/sprinkles/useSprinklesEnabled";
 
 interface CursorPoint {
   id: number;
   x: number;
   y: number;
+  glyph: string;
 }
+
+const DEFAULT_GLYPH = "·";
+const DEFAULT_FADE_MS = 500;
+const DEFAULT_THROTTLE_MS = 80;
 
 export function CursorTrail() {
   const [cursors, setCursors] = useState<CursorPoint[]>([]);
-  const [emoji, setEmoji] = useState("·");
+  const [konamiOverride, setKonamiOverride] = useState<string | null>(null);
+  const glyphIndexRef = useRef(0);
+
+  const theme = useThemePath();
+  const sprinklesEnabled = useSprinklesEnabled();
+
+  const eligible = useMemo(
+    () => sprinklesForTheme(SPRINKLES, "cursor-trail", theme),
+    [theme],
+  );
+
+  // Pick one compatible sprinkle at random per mount (per page load).
+  const active = useMemo(() => {
+    if (!sprinklesEnabled || eligible.length === 0) return null;
+    return eligible[Math.floor(Math.random() * eligible.length)];
+  }, [eligible, sprinklesEnabled]);
+
+  const glyphs = active?.glyphs ?? [DEFAULT_GLYPH];
+  const fadeMs = active?.fadeMs ?? DEFAULT_FADE_MS;
+  const throttleMs = active?.throttleMs ?? DEFAULT_THROTTLE_MS;
 
   useEffect(() => {
     let cursorId = 0;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const newCursor: CursorPoint = {
+    const emit = (e: MouseEvent) => {
+      const glyph = konamiOverride ?? glyphs[glyphIndexRef.current % glyphs.length];
+      glyphIndexRef.current += 1;
+      const point: CursorPoint = {
         id: cursorId++,
         x: e.clientX,
-        y: e.clientY
+        y: e.clientY,
+        glyph,
       };
-
-      setCursors((prev) => [...prev, newCursor]);
-
+      setCursors((prev) => [...prev, point]);
       setTimeout(() => {
-        setCursors((prev) => prev.filter((c) => c.id !== newCursor.id));
-      }, 500);
+        setCursors((prev) => prev.filter((c) => c.id !== point.id));
+      }, fadeMs);
     };
 
-    let throttleTimer: NodeJS.Timeout | null = null;
-    const throttledMouseMove = (e: MouseEvent) => {
+    let throttleTimer: ReturnType<typeof setTimeout> | null = null;
+    const throttled = (e: MouseEvent) => {
       if (throttleTimer) return;
       throttleTimer = setTimeout(() => {
-        handleMouseMove(e);
+        emit(e);
         throttleTimer = null;
-      }, 80);
+      }, throttleMs);
     };
 
-    window.addEventListener("mousemove", throttledMouseMove);
-
+    window.addEventListener("mousemove", throttled);
     return () => {
-      window.removeEventListener("mousemove", throttledMouseMove);
+      window.removeEventListener("mousemove", throttled);
       if (throttleTimer) clearTimeout(throttleTimer);
     };
-  }, []);
+  }, [glyphs, fadeMs, throttleMs, konamiOverride]);
 
   useEffect(() => {
-    const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    const code = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
     let pos = 0;
 
     const handleKey = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
-      if (key === code[pos] || e.key === code[pos]) {
+      if (key === code[pos].toLowerCase() || e.key === code[pos]) {
         pos++;
         if (pos === code.length) {
-          setEmoji("🔫");
+          setKonamiOverride("🔫");
           pos = 0;
         }
       } else {
@@ -81,10 +109,10 @@ export function CursorTrail() {
             fontSize: "12px",
             userSelect: "none",
             color: "#2a5db0",
-            opacity: 0.4,
+            opacity: 0.6,
           }}
         >
-          {emoji}
+          {cursor.glyph}
         </div>
       ))}
     </div>

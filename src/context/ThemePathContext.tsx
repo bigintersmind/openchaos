@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 
-export type ThemePath = "ascii" | "web2" | "newspaper" | "";
+export type ThemePath = "ascii" | "web2" | "newspaper" | "vaporwave" | "";
 
 const ThemePathContext = createContext<ThemePath>("");
 
